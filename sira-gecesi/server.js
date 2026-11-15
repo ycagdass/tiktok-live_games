@@ -45,6 +45,11 @@ function serveFile(req, res, file) {
 // ---------- ayarlar ----------
 const config = { username: '', signApiKey: '', karakter: 'bocek', izleyiciSecer: true };
 try { Object.assign(config, JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))); } catch {}
+if (!config.signApiKey) {
+  for (const fc of [path.resolve(__dirname, '..', 'ayarlar.json'), path.resolve(__dirname, '..', 'canli-dugun', 'ayarlar.json'), path.resolve(__dirname, '..', 'sira-gecesi-v2', 'ayarlar.json')]) {
+    try { const p = JSON.parse(fs.readFileSync(fc, 'utf8')); if (p && p.signApiKey) { config.signApiKey = p.signApiKey; break; } } catch {}
+  }
+}
 if (process.env.EULER_API_KEY) config.signApiKey = process.env.EULER_API_KEY;
 if (process.argv[2]) config.username = process.argv[2].replace(/^@/, '');
 // Müzik klasörü: ayarlar.json "musicDir" > bu klasördeki "müzik" klasörü (düğün müzikleri KULLANILMAZ)

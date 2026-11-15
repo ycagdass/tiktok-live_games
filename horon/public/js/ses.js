@@ -50,6 +50,7 @@
       if (this.on) { this.on = false; this.master.gain.setTargetAtTime(0, c.currentTime, 0.08); if (this.el) this.el.pause(); return false; }
       await c.resume();
       this.on = true; this.master.gain.setTargetAtTime(0.85, c.currentTime, 0.05);
+      this.startMusic();
       return true;
     }
     if (this.on) { this.on = false; this.marks = []; this.master.gain.setTargetAtTime(0, c.currentTime, 0.08); return false; }
@@ -76,6 +77,11 @@
   };
 
   A.beatAt = function () {
+    if (this.music) {
+      const t = this.tracks[this.ti];
+      if (!this.on || !this.el || this.el.paused || !t || !t.bpm) return null;
+      return this.beatBase + (this.el.currentTime - t.offset) * t.bpm / 60;
+    }
     if (!this.on || !this.marks.length) return null;
     const now = this.ctx.currentTime;
     let m = null;
@@ -163,16 +169,47 @@
     if (big) this.tulum(t, SCALE[4] * 0.5, 0.6, 0.15);
   };
 
+  const RATES = [0.96, 1.0, 1.06, 1.12];
   A.loadTracks = async function () {
     try {
-      const files = await fetch('/api/music').then((r) => r.json());
-      this.tracks = files.map((url) => ({ url, name: decodeURIComponent(url.split('/').pop()).replace(/\.[^.]+$/, ''), bpm: 130, offset: 0 }));
-      this.music = this.tracks.length > 0;
-    } catch { this.music = false; }
+      const j = await (await fetch('/api/music')).json();
+      this.tracks = (j.tracks || []).map((f) => ({ file: f, name: f.replace(/\.[^.]+$/, ''), url: 'muzik/' + encodeURIComponent(f), bpm: 130, offset: 0 }));
+    } catch { this.tracks = []; }
+    this.music = this.tracks.length > 0;
+    if (this.music && this.on) this.startMusic();
     return this.music;
   };
-  A.current = function () { return this.tracks[this.ti] || null; };
-  A.musicBpm = function () { return 0; };
-  A.tick = function () {};
-  A.nextTrack = function () {};
+  A.startMusic = function () {
+    const c = this.ctx;
+    if (!this.el) {
+      this.el = new Audio();
+      this.el.preload = 'auto';
+      this.el.preservesPitch = true; this.el.mozPreservesPitch = true; this.el.webkitPreservesPitch = true;
+      this.musicGain = c.createGain(); this.musicGain.gain.value = 0.9;
+      c.createMediaElementSource(this.el).connect(this.musicGain);
+      this.musicGain.connect(this.master);
+      this.el.addEventListener('ended', () => this.nextTrack());
+      this.el.addEventListener('error', () => setTimeout(() => this.nextTrack(), 800));
+    }
+    if (this.ti < 0) this.nextTrack();
+    else this.el.play().catch(() => {});
+  };
+  A.nextTrack = function () {
+    if (!this.tracks.length || !this.el) return;
+    const prev = this.beatAt();
+    this.ti = (this.ti + 1) % this.tracks.length;
+    const t = this.tracks[this.ti];
+    this.beatBase = prev != null ? Math.ceil(prev) : 0;
+    this.el.src = t.url;
+    this.el.playbackRate = this.rate;
+    if (this.on) this.el.play().catch(() => {});
+  };
+  A.current = function () { return this.music && this.ti >= 0 ? this.tracks[this.ti] : null; };
+  A.musicBpm = function () { const t = this.current(); return t && t.bpm ? t.bpm * this.rate : 0; };
+  A.tick = function (level, dt) {
+    if (!this.el) return;
+    const target = RATES[level] || 1;
+    this.rate += (target - this.rate) * Math.min(1, dt * 0.8);
+    if (Math.abs(this.el.playbackRate - this.rate) > 0.003) this.el.playbackRate = this.rate;
+  };
 })();

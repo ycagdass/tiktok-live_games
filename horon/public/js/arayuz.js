@@ -209,6 +209,12 @@ export function createUI(G, camera, salon, hooks) {
   };
   G.on('ruleHit', flash);
   G.on('chipHit', flash);
+  G.on('giftlog', (e) => {
+    const m = e.match, img = e.gift.image;
+    if (!m || m.by === 'jeton' || !/^https:\/\//.test(img || '') || m.r.resim === img) return;
+    m.r.resim = img; UI.renderChips();
+    fetch('/api/rule-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ eylem: m.r.eylem, resim: img }) }).catch(() => {});
+  });
   G.on('announce', (t) => { aq.push(t); if (aq.length > 8) aq.splice(0, aq.length - 8); });
   G.on('banner', (b) => {
     bq.push(b); if (bq.length > 10) bq.shift();
@@ -260,9 +266,15 @@ export function createUI(G, camera, salon, hooks) {
   const toggleSound = async () => { await A.toggle(G.beat); UI.refreshSoundBtn(); };
   $('btnSound').onclick = toggleSound;
   $('btnNext').onclick = () => A.nextTrack();
+  if ((qs.has('clean') || qs.has('ses')) && qs.get('ses') !== '0') { const auto = () => { if (!A.on) toggleSound(); }; setTimeout(auto, 900); addEventListener('pointerdown', auto, { once: true }); }
   const toggleClean = () => { document.body.classList.toggle('clean'); requestAnimationFrame(UI.fit); };
   $('btnClean').onclick = toggleClean;
   $('btnFull').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); };
+  addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'h' || e.key === 'H') toggleClean();
+    if (e.key >= '1' && e.key <= '6') hooks.onJump(Number(e.key) - 1);
+  });
   if (qs.has('clean')) document.body.classList.add('clean');
   if (qs.get('demo') === '0') { $('autoDemo').checked = false; hooks.demo.on = false; }
   $('autoDemo').onchange = (e) => { hooks.demo.on = e.target.checked; };
@@ -312,12 +324,19 @@ export function createUI(G, camera, salon, hooks) {
 
   const PILL = { idle: ['DEMO', ''], connecting: ['BAĞLANIYOR…', 'wait'], waiting: ['YAYIN BEKLENİYOR', 'wait'], live: ['CANLI', 'live'], error: ['BAĞLANTI HATASI', 'err'] };
   UI.setLive = (st) => {
+    if (hooks.live) hooks.live.status = st;
     const [txt, cls] = PILL[st.state] || PILL.idle;
     $('statusPill').className = 'pill ' + cls;
     $('statusText').textContent = st.state === 'live' ? `CANLI · @${st.username}` : txt;
     $('liveMsg').textContent = st.message || '';
+    $('liveMsg').className = 'sub ' + (st.state === 'live' ? 'live' : st.state === 'error' ? 'err' : '');
     const active = st.state !== 'idle';
     $('liveBtn').textContent = active ? 'Kes' : 'Bağlan'; $('liveBtn').classList.toggle('stop', active); $('liveUser').disabled = active;
+    if (st.username && document.activeElement !== $('liveUser')) $('liveUser').value = '@' + st.username;
+    const hasDemo = [...G.users.keys()].some((id) => String(id).startsWith('demo_'));
+    if (active && (hooks.demo.on || hasDemo)) { hooks.demo.on = false; $('autoDemo').checked = false; G.reset(); $('feed').innerHTML = ''; }
+    $('autoDemo').disabled = active;
+    document.querySelectorAll('[data-demo]:not([data-demo=reset]),[data-rule]').forEach((b) => { b.disabled = active; });
   };
 
   renderBoard();

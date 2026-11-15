@@ -1,8 +1,10 @@
 // Ortak Tarayıcı Canlı Bağlantı, Kural, Karakter Ayarı ve Küfür Filtresi Yöneticisi
 import { VARSAYILAN_FILTRE, yorumTemizMi } from './filtre.js';
 
-export function canliBaglantiBaslat(G, UI, demo, ops = {}) {
-  const live = { status: { state: 'idle' }, filtre: VARSAYILAN_FILTRE };
+export function canliBaglantiBaslat(G, UI, demo, targetLive) {
+  const live = targetLive || { status: { state: 'idle' } };
+  live.status = live.status || { state: 'idle' };
+  live.filtre = VARSAYILAN_FILTRE;
   const post = (url, body) =>
     fetch(url, {
       method: 'POST',

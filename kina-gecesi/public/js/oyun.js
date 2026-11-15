@@ -49,7 +49,7 @@ export function createGame(scene, salon) {
     knead: new Array(salon.knead.length).fill(null),
     orch: { saz: null, solist: null, darbuka: null },
     baskose: null,
-    viewers: 120, likes: 0, diamonds: 0,
+    viewers: 0, likes: 0, diamonds: 0,
     energy: 0, level: 0, bpm: 96, beat: 0, time: 0,
     rules: [], top: [], fx: [],
     karakterModu: 'bocek',
@@ -311,10 +311,18 @@ export function createGame(scene, salon) {
 
   G.handle = function (ev) {
     if (!ev || !ev.type) return;
-    if (ev.type === 'viewer') { G.viewers = ev.count || G.viewers; return; }
-    const u = ensureUser(ev.user || {});
-    if (ev.type === 'join') {
+    if (ev.type === 'viewers' || ev.type === 'viewer') { G.viewers = ev.count | 0; return; }
+    if (!ev.user || (!ev.user.id && !ev.user.nick)) return;
+    const u = ensureUser(ev.user);
+    if (ev.type === 'member' || ev.type === 'join') {
+      boost(0.4);
       if (G.halay.length < 10 && Math.random() < 0.55) joinHalay(u, false);
+    } else if (ev.type === 'follow') {
+      boost(3);
+      G.emit('feed', { kind: 'follow', user: u, text: 'takip etti ➕' });
+    } else if (ev.type === 'share') {
+      boost(3);
+      G.emit('feed', { kind: 'share', user: u, text: 'yayını paylaştı 🔗' });
     } else if (ev.type === 'chat') {
       const rawTxt = String(ev.text || '').trim();
       const flt = yorumFiltrele(rawTxt, G.filtreAyar);
@@ -323,14 +331,17 @@ export function createGame(scene, salon) {
         G.emit('filtered', G.filteredCount);
         return;
       }
+      G.emit('chipHit', 'yorum');
       const txt = flt.metin;
       u.bubble = { text: txt, t: G.time };
+      if (u.ch && u.ch.userData && u.ch.userData.state) u.ch.userData.state.talkT = G.time;
       boost(2.2);
 
       if (G.izleyiciSecer) {
         const kt = yorumdanTur(txt);
         const secTur = kt && (kt.tur || kt);
         if (secTur && (u.tur !== secTur || u.ozelTur !== secTur)) {
+          G.emit('chipHit', 'tur');
           u.ozelTur = secTur;
           if (kt.renk) u.customColor = kt.renk;
           rebuildCharacter(u);
@@ -348,14 +359,20 @@ export function createGame(scene, salon) {
         if (u.leader) setMendil(u, true);
         G.fx.push({ type: 'puf', at: u });
       }
-      if (KINA_RE.test(txt)) joinKnead(u, true);
-      else if (HALAY_RE.test(txt)) joinHalay(u, true);
+      if (/^(otur|masaya d[öo]n|masaya)$/i.test(txt)) {
+        if (u.state === 'halay' && !u.leader) sendToSeat(u);
+      } else if (/^(oyna|hop|zıpla|zipla)$/i.test(txt)) {
+        if (u.ch && u.ch.userData && u.ch.userData.state) u.ch.userData.state.jumpT = G.time;
+      } else if (KINA_RE.test(txt)) joinKnead(u, true);
+      else if (HALAY_RE.test(txt)) { G.emit('chipHit', 'halay'); joinHalay(u, true); }
       G.emit('feed', { kind: 'chat', user: u, text: txt });
     } else if (ev.type === 'like') {
       const c = clamp(ev.count || 1, 1, 80);
+      G.emit('chipHit', 'begen');
       u.likes += c; G.likes += c; boost(c * 0.48);
       if (u.likes >= 15 && u.state === 'sit' && G.halay.length < MAX_HALAY) joinHalay(u, true);
       G.fx.push({ type: 'kalp', at: u, n: Math.min(8, Math.ceil(c / 3)) });
+      if (G.time - (u.likeFeedT || -99) > 6) { u.likeFeedT = G.time; G.emit('feed', { kind: 'like', user: u, text: `${c} beğeni gönderdi ❤️` }); }
     } else if (ev.type === 'gift') {
       const g = ev.gift || {};
       const cnt = g.count || 1;

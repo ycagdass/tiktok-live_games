@@ -310,6 +310,7 @@ export function createUI(G, camera, salon, hooks) {
 
   const PILL = { idle: ['DEMO', ''], connecting: ['BAĞLANIYOR…', 'wait'], waiting: ['YAYIN BEKLENİYOR', 'wait'], live: ['CANLI', 'live'], error: ['BAĞLANTI HATASI', 'err'] };
   UI.setLive = (st) => {
+    if (hooks.live) hooks.live.status = st;
     const [txt, cls] = PILL[st.state] || PILL.idle;
     $('statusPill').className = 'pill ' + cls;
     $('statusText').textContent = st.state === 'live' ? `CANLI · @${st.username}` : txt;

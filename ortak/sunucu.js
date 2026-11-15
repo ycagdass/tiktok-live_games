@@ -80,6 +80,23 @@ function baslat(opts = {}) {
 
   const config = { username: '', signApiKey: '', karakter: 'bocek', izleyiciSecer: true };
   try { Object.assign(config, JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))); } catch {}
+  if (!config.signApiKey) {
+    const fallbackConfigs = [
+      path.resolve(dir, '..', 'ayarlar.json'),
+      path.resolve(dir, '..', 'sira-gecesi', 'ayarlar.json'),
+      path.resolve(dir, '..', 'canli-dugun', 'ayarlar.json'),
+      path.resolve(dir, '..', 'sira-gecesi-v2', 'ayarlar.json'),
+      path.resolve(dir, '..', 'kina-gecesi', 'ayarlar.json'),
+      path.resolve(dir, '..', 'koy-dugunu', 'ayarlar.json'),
+      path.resolve(dir, '..', 'horon', 'ayarlar.json'),
+    ];
+    for (const fc of fallbackConfigs) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(fc, 'utf8'));
+        if (parsed && parsed.signApiKey) { config.signApiKey = parsed.signApiKey; break; }
+      } catch {}
+    }
+  }
   if (process.env.EULER_API_KEY) config.signApiKey = process.env.EULER_API_KEY;
   if (process.argv[2]) config.username = process.argv[2].replace(/^@/, '');
 
@@ -153,6 +170,7 @@ function baslat(opts = {}) {
     conn.on(WebcastEvent.STREAM_END, ({ action } = {}) => {
       if (!mine()) return;
       live.ended = true;
+      console.log(`[TikTok] yayın bitti sinyali (oda ${conn.roomId || '?'}, action ${action})`);
       setStatus('waiting', `@${live.username} yayını bitti. Yeni yayın açılınca otomatik bağlanacak.`);
       const quick = Date.now() - (live.connectedAt || 0) < 30000;
       retry(gen, quick ? 90000 : 30000);
@@ -178,6 +196,8 @@ function baslat(opts = {}) {
       const icon = GIFT_ICONS[name.toLocaleLowerCase('tr')] || '🎁';
       const image = imageOf(g.image) || imageOf(ex.image) || imageOf(gd.giftImage);
       const id = String(d.giftId || g.id || gd.id || '');
+      const u = userOf(d);
+      console.log(`[Hediye] ${u ? u.nick : '?'} → ${name} (id ${id || '-'}) ${diamonds} jeton ×${count}`);
       send('gift', d, { gift: { name, id, diamonds, count, icon, image } });
     });
   }
@@ -214,6 +234,7 @@ function baslat(opts = {}) {
       await conn.connect();
       if (gen !== live.gen || conn !== live.conn) { conn.disconnect().catch(() => {}); return; }
       live.connectedAt = Date.now();
+      console.log(`[TikTok] oda ${conn.roomId}`);
       setStatus('live', `@${live.username} canlı yayınına bağlandı`);
     } catch (err) {
       if (gen !== live.gen || conn !== live.conn) return;
@@ -221,11 +242,11 @@ function baslat(opts = {}) {
       const offline = (lib.UserOfflineError && err instanceof lib.UserOfflineError) || /offline|not live|isn't online|not online/i.test(msg);
       const rate = /rate.?limit|too many/i.test(msg);
       if (rate) {
-        setStatus('error', 'TikTok bağlantı servisinin (Euler) saatlik bağlantı sınırı doldu. 10 dk sonra tekrar denenecek.');
+        setStatus('error', 'TikTok bağlantı servisinin (Euler) saatlik bağlantı sınırı doldu. 10 dk sonra kendiliğinden tekrar denenecek.');
         retry(gen, 10 * 60000);
         return;
       }
-      if (offline) setStatus('waiting', `@${live.username} şu an yayında değil. Yayın açılınca otomatik bağlanacak.`);
+      if (offline) setStatus('waiting', `@${live.username} şu an yayında değil. Yayın açılınca otomatik bağlanacak (30 sn'de bir kontrol).`);
       else setStatus('error', `Bağlanamadı: ${msg.slice(0, 160)} — 45 sn sonra tekrar denenecek.`);
       retry(gen, offline ? 30000 : 45000);
     }

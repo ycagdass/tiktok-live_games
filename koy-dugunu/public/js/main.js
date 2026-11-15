@@ -60,7 +60,7 @@ const UI = createUI(G, camera, salon, {
   onJump: (i) => director.jump(TOUR[i][0]),
 });
 
-Object.assign(live, canliBaglantiBaslat(G, UI, demo));
+canliBaglantiBaslat(G, UI, demo, live);
 UI.renderRuleButtons();
 
 const A = window.CD.audio;
