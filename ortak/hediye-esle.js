@@ -2,14 +2,15 @@
 // Eşleşme sırası:
 //   1. Hediye ID (kurallar[].id)
 //   2. Hediye Adı (kurallar[].ad, Türkçe küçük harf duyarsız)
-//   3. Jeton değeri (kurallar[].jeton, ad ve id boş olan kurallar için)
+//   3. Jeton değeri (kurallar[].jeton === dia)
 //   4. Minimum jeton (kurallar[].minJeton, dia >= minJeton)
 
-export function hediyeEsle(kurallar, gf) {
+export function hediyeEsle(kurallar, gf, unitOverride, totalOverride) {
   if (!Array.isArray(kurallar) || !gf) return null;
   const name = String(gf.name || '').toLocaleLowerCase('tr').trim();
   const id = String(gf.id || '').trim();
-  const dia = Number(gf.diamonds) | 0;
+  const dia = (unitOverride != null ? Number(unitOverride) : Number(gf.diamonds)) | 0;
+  const total = (totalOverride != null ? Number(totalOverride) : dia) | 0;
 
   for (const r of kurallar) {
     if (id && Array.isArray(r.id) && r.id.map(String).includes(id)) return { r, by: 'id' };
@@ -21,7 +22,12 @@ export function hediyeEsle(kurallar, gf) {
     }
   }
   for (const r of kurallar) {
-    if (r.minJeton != null && dia >= Number(r.minJeton)) {
+    if (r.jeton != null && Number(r.jeton) === dia) {
+      return { r, by: 'jeton' };
+    }
+  }
+  for (const r of kurallar) {
+    if (r.minJeton != null && (dia >= Number(r.minJeton) || total >= Number(r.minJeton))) {
       return { r, by: 'jeton' };
     }
   }

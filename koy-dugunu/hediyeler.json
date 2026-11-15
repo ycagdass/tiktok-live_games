@@ -1,0 +1,69 @@
+{
+  "_aciklama": "Açık Hava Köy Düğünü hediye kuralları. Kullanılabilir eylemler: cayocagi (çay ocağından semaver çayı dağıtır ve çaycı yapar), davul (meydanda davulcu yapar), halaybasi (meydan halay başı yapar), zurna (zurnacı yapar), bahsis (davul-zurna ekibine bahşiş yapıştırır), gelindamat (gelin ve damada altın/takı takar), havaifisek (köy meydanında havai fişek patlatır), konvoy (büyük düğün konvoyu ve meydan coşkusu başlatır).",
+  "kurallar": [
+    {
+      "eylem": "cayocagi",
+      "etiket": "Çay Ocağından Çay Dağıt",
+      "jeton": 1,
+      "ikon": "☕",
+      "ad": ["Rose", "Gül", "TikTok"],
+      "id": [5655]
+    },
+    {
+      "eylem": "davul",
+      "etiket": "Davulcu Ol",
+      "jeton": 5,
+      "ikon": "🥁",
+      "ad": ["Finger Heart", "Ice Cream Cone"],
+      "id": []
+    },
+    {
+      "eylem": "halaybasi",
+      "etiket": "Halay Başı Ol",
+      "jeton": 10,
+      "ikon": "🧣",
+      "ad": ["Rosa"],
+      "id": []
+    },
+    {
+      "eylem": "zurna",
+      "etiket": "Zurnacı Ol",
+      "jeton": 25,
+      "ikon": "🎺",
+      "ad": ["Perfume", "Doughnut"],
+      "id": []
+    },
+    {
+      "eylem": "bahsis",
+      "etiket": "Davulcuya Bahşiş Yapıştır",
+      "jeton": 50,
+      "ikon": "💵",
+      "ad": ["Paper Crane"],
+      "id": []
+    },
+    {
+      "eylem": "gelindamat",
+      "etiket": "Gelin & Damada Altın Tak",
+      "jeton": 99,
+      "ikon": "👰",
+      "ad": ["Little Crown", "Cap", "Hat and Mustache"],
+      "id": []
+    },
+    {
+      "eylem": "havaifisek",
+      "etiket": "Meydanda Havai Fişek",
+      "jeton": 199,
+      "ikon": "🎆",
+      "ad": ["Confetti", "Fireworks"],
+      "id": []
+    },
+    {
+      "eylem": "konvoy",
+      "etiket": "Düğün Konvoyu & Coşku",
+      "minJeton": 500,
+      "ikon": "🚗",
+      "ad": ["Drama Queen", "Lion", "Universe", "Galaxy", "Sports Car"],
+      "id": []
+    }
+  ]
+}

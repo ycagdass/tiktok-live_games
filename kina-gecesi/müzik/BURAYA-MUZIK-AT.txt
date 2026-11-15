@@ -1,0 +1,2 @@
+Bu klasöre .mp3, .wav veya .ogg uzantılı kına gecesi müziklerinizi atabilirsiniz.
+Klasör boşsa oyun kendi kodla üretilen kına gecesi ritmini ve gelin ağladığında duygusal "Yüksek Yüksek Tepelere" ezgisini otomatik çalar.

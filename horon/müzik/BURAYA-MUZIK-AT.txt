@@ -1,0 +1,2 @@
+Bu klasöre .mp3, .wav veya .ogg uzantılı Karadeniz horon (kemençe / tulum) müziklerinizi atabilirsiniz.
+Klasör boşsa oyun kendi kodla üretilen Karadeniz kemençe ve tulum sesini otomatik çalar; beğeni arttıkça tempo ve horon halkası hızlanır!

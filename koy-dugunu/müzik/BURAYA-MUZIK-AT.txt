@@ -1,0 +1,2 @@
+Bu klasöre .mp3, .wav veya .ogg uzantılı köy düğünü (davul-zurna / oyun havası) müziklerinizi atabilirsiniz.
+Klasör boşsa oyun kendi kodla üretilen meydan davul-zurnasını otomatik çalar.

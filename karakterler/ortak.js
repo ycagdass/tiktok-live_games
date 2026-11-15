@@ -44,7 +44,8 @@ export function turNormalize(t) {
 export function secilenTur(ayarKarakter, seed = 1) {
   const norm = turNormalize(ayarKarakter);
   if (norm === 'karisik') {
-    const idx = Math.abs(seed | 0) % TURLER.length;
+    const s = typeof seed === 'number' ? seed : hashStr(String(seed));
+    const idx = Math.abs(s | 0) % TURLER.length;
     return TURLER[idx];
   }
   return TURLER.includes(norm) ? norm : 'bocek';

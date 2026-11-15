@@ -1,0 +1,69 @@
+{
+  "_aciklama": "Karadeniz Horonu hediye kuralları. Kullanılabilir eylemler: cay (herkese Rize çayı ikram eder), kemence (sahnede kemençeci yapar), horonbasi (horon halkasının başına geçirir), tulum (sahnede tulumcu yapar), kuymak (ortadaki kazanda kuymak/mıhlama ikram eder), sis (yaylaya sis ve duman indirir), havaifisek (yaylada havai fişek patlatır), alasagi (dik horon ve maksimum halka hızı başlatır).",
+  "kurallar": [
+    {
+      "eylem": "cay",
+      "etiket": "Rize Çayı Dağıt",
+      "jeton": 1,
+      "ikon": "☕",
+      "ad": ["Rose", "Gül", "TikTok"],
+      "id": [5655]
+    },
+    {
+      "eylem": "kemence",
+      "etiket": "Kemençeci Ol",
+      "jeton": 10,
+      "ikon": "🎻",
+      "ad": ["Rosa", "Finger Heart"],
+      "id": []
+    },
+    {
+      "eylem": "horonbasi",
+      "etiket": "Horon Başı Ol",
+      "jeton": 20,
+      "ikon": "🧣",
+      "ad": ["Perfume", "Doughnut"],
+      "id": []
+    },
+    {
+      "eylem": "tulum",
+      "etiket": "Tulumcu Ol",
+      "jeton": 35,
+      "ikon": "🎶",
+      "ad": [],
+      "id": []
+    },
+    {
+      "eylem": "kuymak",
+      "etiket": "Kuymak & Mısır Ekmeği İkramı",
+      "jeton": 50,
+      "ikon": "🧀",
+      "ad": ["Paper Crane"],
+      "id": []
+    },
+    {
+      "eylem": "sis",
+      "etiket": "Yayla Sisi İndir",
+      "jeton": 99,
+      "ikon": "🌫️",
+      "ad": ["Little Crown", "Cap", "Hat and Mustache"],
+      "id": []
+    },
+    {
+      "eylem": "havaifisek",
+      "etiket": "Yaylada Havai Fişek",
+      "jeton": 199,
+      "ikon": "🎆",
+      "ad": ["Confetti", "Fireworks"],
+      "id": []
+    },
+    {
+      "eylem": "alasagi",
+      "etiket": "Dik Horon & Alaşağı Coşkusu",
+      "minJeton": 500,
+      "ikon": "⚡",
+      "ad": ["Drama Queen", "Lion", "Universe", "Galaxy", "Corgi"],
+      "id": []
+    }
+  ]
+}

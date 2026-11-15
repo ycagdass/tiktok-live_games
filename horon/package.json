@@ -1,0 +1,9 @@
+{
+  "name": "tiktok-karadeniz-horon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TikTok Canlı Karadeniz Horonu 3D interaktif oyun",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
