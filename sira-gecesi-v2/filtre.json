@@ -1,0 +1,19 @@
+{
+  "_aciklama": [
+    "Küfür, hakaret ve nefret söylemi filtresi.",
+    "Bu listedeki kelimeleri veya düzenli ifade kalıplarını içeren yorumlar sahnedeki konuşma balonlarına ve canlı akışa basılmaz."
+  ],
+  "engelliKelimeler": [
+    "amk", "aq", "mk", "oç", "oc", "piç", "pic", "sik", "siktir", "sikik", "sikeyim",
+    "yarrak", "yarak", "göt", "gotveren", "orospu", "kahpe", "pezevenk", "ibne", "puşt",
+    "pust", "gavat", "yavşak", "yavsak", "gerizekalı", "gerizekali", "aptal", "salak",
+    "embesil", "haysiyetsiz", "şerefsiz", "serefsiz", "namussuz", "köpek oğlu", "it oğlu",
+    "geber", "gebersin", "nefret ediyorum", "ırkçı", "faşist", "terörist"
+  ],
+  "engelliKaliplar": [
+    "s[i1!]+k[t]+[i1!]+r",
+    "o+r+o+s+p+u+",
+    "a+m+k+",
+    "ş+e+r+e+f+s+i+z+"
+  ]
+}
