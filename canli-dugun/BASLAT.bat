@@ -1,8 +1,7 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
+title Canli Dugun (Port 3000)
 
-rem 0) Node.js var mi? Paketler kurulu mu? (ilk acilista otomatik kurar)
 where node >nul 2>nul
 if errorlevel 1 (
   echo.
@@ -15,17 +14,14 @@ if not exist node_modules (
   echo  Ilk acilis: gerekli paketler kuruluyor, 1-2 dakika surebilir...
   call npm install --no-audit --no-fund
 )
-title Canli Dugun
 
-rem 1) Sunucu (ayri pencerede; kapatirsan sistem durur)
 start "Canli Dugun - SUNUCU (kapatma)" cmd /k node server.js
 timeout /t 2 /nobreak >nul
 
-rem 2) Sahne penceresi: kenarliksiz, dikey 9:16. TikTok LIVE Studio'da BU pencereyi yakala.
-rem    Ayri profil + autoplay izni: muzik tiklamadan baslar.
 set "SAHNE=http://localhost:3000/?clean"
 set "PROFIL=%~dp0.sahne-tarayici"
 set "CHROME=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if not exist "%CHROME%" set "CHROME=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
 if not exist "%CHROME%" set "CHROME=%LocalAppData%\Google\Chrome\Application\chrome.exe"
 if not exist "%CHROME%" set "CHROME=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
 if not exist "%CHROME%" set "CHROME=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
@@ -35,5 +31,4 @@ if exist "%CHROME%" (
   start "" "%SAHNE%"
 )
 
-rem 3) Kontrol paneli (normal tarayicinda; bunu YAYINA VERME)
 start "" "http://localhost:3000/"

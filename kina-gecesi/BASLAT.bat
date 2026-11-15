@@ -1,11 +1,21 @@
 @echo off
-chcp 65001 >nul
-title TikTok Kına Gecesi (Port 3300)
 cd /d "%~dp0"
+title Kina Gecesi (Port 3300)
 
-set URL=http://localhost:3300/?clean
+start "Kina Gecesi - SUNUCU" cmd /k node server.js
+timeout /t 2 /nobreak >nul
 
-start "" cmd /c "timeout /t 2 >nul & if exist ""%ProgramFiles%\Google\Chrome\Application\chrome.exe"" (start """" ""%ProgramFiles%\Google\Chrome\Application\chrome.exe"" --app=%URL% --window-size=540,960) else if exist ""%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"" (start """" ""%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"" --app=%URL% --window-size=540,960) else if exist ""%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"" (start """" ""%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"" --app=%URL% --window-size=540,960) else if exist ""%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"" (start """" ""%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"" --app=%URL% --window-size=540,960) else (start """" %URL%)"
+set "SAHNE=http://localhost:3300/?clean"
+set "PROFIL=%~dp0.sahne-tarayici"
+set "CHROME=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if not exist "%CHROME%" set "CHROME=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if not exist "%CHROME%" set "CHROME=%LocalAppData%\Google\Chrome\Application\chrome.exe"
+if not exist "%CHROME%" set "CHROME=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
+if not exist "%CHROME%" set "CHROME=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
+if exist "%CHROME%" (
+  start "" "%CHROME%" --app="%SAHNE%" --user-data-dir="%PROFIL%" --window-size=608,1080 --window-position=0,0 --autoplay-policy=no-user-gesture-required --no-first-run --no-default-browser-check
+) else (
+  start "" "%SAHNE%"
+)
 
-node server.js
-pause
+start "" "http://localhost:3300/"
