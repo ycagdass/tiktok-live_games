@@ -97,12 +97,22 @@ Oyun klasöründeki **`BASLAT.bat`** dosyasına çift tıkla.
 
 Yayın açmadan denemek için kontrol panelindeki demo düğmelerini kullanabilirsin. Hesap bağlanınca demo kendiliğinden kapanır.
 
-## 8. TikTok LIVE Studio'da yayına ver
+## 8. TikTok LIVE Studio'da yayına ver (Windows Pencere Yakalama)
 
-1. TikTok LIVE Studio'yu aç, sahneyi **dikey (9:16)** yap.
-2. **Kaynak ekle → Pencere yakalama** seç.
-3. Oyunun **sahne penceresini** seç, sahneyi kaplayacak şekilde büyüt.
-4. Yayını başlat. Oyun yayına kendisi bağlanır. Yayın kapalıyken bekler, yayın açılınca otomatik bağlanır.
+1. **TikTok LIVE Studio**'yu aç ve yayın yönünü **Dikey (9:16 - 1080x1920)** olarak seç.
+2. `BASLAT.bat` çalıştığında iki tarayıcı penceresi açılır:
+   - **Kenarlıksız dikey pencere (`?clean` yayın modu)**: Sadece sahneyi gösterir, sağ panel gizlidir.
+   - **Kontrol paneli penceresi (`http://localhost:PORT/`)**: Bağlantı durumu, demo düğmeleri ve hediye kaydı buradadır (bunu yayına verme).
+3. TikTok LIVE Studio'da sol alttan **Kaynak ekle (Add Source) → Pencere yakalama (Window Capture)** seç.
+4. Açılan listeden `[chrome.exe]: Sıra Gecesi` veya `[msedge.exe]: Canlı Düğün` (kenarlıksız 9:16 sahne penceresi) kaynağını seç.
+5. **İmleci yakala (Capture Cursor)** seçeneğini kapat, **Uyumluluk modu (Compatibility Mode)** gerekirse (siyah ekran olursa) işaretle ve pencereyi tuvale tam sığdır.
+6. Sahne penceresini **simge durumuna küçültme (minimize etme)**; Windows küçültülen pencerelerin çizimini durdurduğu için yayında donar. Pencereyi arka planda açık bırakabilirsin.
+7. Yayını başlat. Oyun yayına kendisi bağlanır. Yayın kapalıyken bekler, yayın açılınca otomatik bağlanır.
+
+### Teknik Notlar (Aşama 1 Tespit ve Düzeltmeler)
+- **Hediye eylemleri (`isot`)**: `sira-gecesi/hediyeler.json` ve `oyun.js` içinde `isot` eylemi kodda tanımlı olmasına rağmen varsayılan kural listesinde eksikti; `jeton: 20` ile kurallara eklendi, böylece 8 hediye eyleminin tamamı (`cigkofte`, `halaybasi`, `cay`, `saz`, `solist`, `darbuka`, `isot`, `cosku`) hem demo panelinden hem hediye eşleşmesinden tetiklenebiliyor.
+- **Three.js yolu**: `sira-gecesi/server.js`, `node_modules/three` klasörünü `/three/` altında statik olarak sunar ve `index.html` / `karakter.html` içindeki `importmap` (`/three/build/three.module.js` ve `/three/examples/jsm/`) doğrudan yerel paketten yüklenir.
+- **Ses ve Otomatik Çalma**: `müzik/` klasörü boşken Web Audio API ile prosedürel Hicaz davul-zurna sentezlenir; `BASLAT.bat` içindeki `--autoplay-policy=no-user-gesture-required` bayrağı ve 64-bit Windows Chrome/Edge yedek yolları sayesinde `?clean` sahne penceresinde ses tıklama gerektirmeden başlar.
 
 ---
 

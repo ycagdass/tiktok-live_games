@@ -26,8 +26,14 @@ rem    Ayri profil + autoplay izni: muzik tiklamadan baslar.
 set "SAHNE=http://localhost:3100/?clean"
 set "PROFIL=%~dp0.sahne-tarayici"
 set "CHROME=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if not exist "%CHROME%" set "CHROME=%LocalAppData%\Google\Chrome\Application\chrome.exe"
 if not exist "%CHROME%" set "CHROME=%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
-start "" "%CHROME%" --app="%SAHNE%" --user-data-dir="%PROFIL%" --window-size=608,1080 --window-position=0,0 --autoplay-policy=no-user-gesture-required --no-first-run --no-default-browser-check
+if not exist "%CHROME%" set "CHROME=%ProgramFiles%\Microsoft\Edge\Application\msedge.exe"
+if exist "%CHROME%" (
+  start "" "%CHROME%" --app="%SAHNE%" --user-data-dir="%PROFIL%" --window-size=608,1080 --window-position=0,0 --autoplay-policy=no-user-gesture-required --no-first-run --no-default-browser-check
+) else (
+  start "" "%SAHNE%"
+)
 
 rem 3) Kontrol paneli (normal tarayicinda; bunu YAYINA VERME)
 start "" "http://localhost:3100/"

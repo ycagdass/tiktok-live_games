@@ -14,6 +14,7 @@
     { "eylem": "saz",       "etiket": "Sazcı Ol",            "jeton": 99, "ikon": "🎻", "ad": [], "id": [] },
     { "eylem": "solist",    "etiket": "Solist Ol",           "jeton": 30, "ikon": "💿", "ad": [], "id": [] },
     { "eylem": "darbuka",   "etiket": "Darbukacı Ol",        "jeton": 1,  "ikon": "🥁", "ad": [], "id": [] },
+    { "eylem": "isot",      "etiket": "Köfteye İsot At",     "jeton": 20, "ikon": "🌶️", "ad": [], "id": [] },
     { "eylem": "cosku",     "etiket": "Salonu Ayağa Kaldır", "minJeton": 1000, "ikon": "🔥", "ad": [], "id": [] }
   ]
 }
