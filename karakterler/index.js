@@ -134,3 +134,16 @@ export function karakterYap(tur = 'bocek', renk = null, ad = 'Misafir', ops = {}
 
   return ch;
 }
+
+/**
+ * Sahneden kaldırılan karakterin geometri belleklerini güvenle temizler.
+ * Önbellekteki paylaşılan doku/materyallere dokunmaz.
+ */
+export function karakterTemizle(ch) {
+  if (!ch || typeof ch.traverse !== 'function') return;
+  ch.traverse((obj) => {
+    if (obj.geometry && typeof obj.geometry.dispose === 'function') {
+      obj.geometry.dispose();
+    }
+  });
+}

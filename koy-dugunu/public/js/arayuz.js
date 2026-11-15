@@ -50,7 +50,7 @@ export function createUI(G, camera, salon, hooks) {
     ctx.fillStyle = '#2a1a2e'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, X + w / 2, y - h / 2 - tl + 1);
     ctx.globalAlpha = 1;
   }
-  const tmp = new THREE.Vector3();
+  const tmp = new THREE.Vector3(), _hp = new THREE.Vector3();
   function project(v) {
     tmp.copy(v).project(camera);
     if (tmp.z > 1 || tmp.z < -1) return null;
@@ -63,7 +63,7 @@ export function createUI(G, camera, salon, hooks) {
 
     // Gelin & Damat etiketi
     if (G.bride && G.bride.ch && G.groom && G.groom.ch) {
-      const mid = G.bride.ch.position.clone().add(G.groom.ch.position).multiplyScalar(0.5);
+      const mid = _hp.copy(G.bride.ch.position).add(G.groom.ch.position).multiplyScalar(0.5);
       mid.y += 1.45;
       const p = project(mid);
       if (p) {
@@ -72,7 +72,7 @@ export function createUI(G, camera, salon, hooks) {
     }
     // Çay Ocağı etiketi
     if (salon.tray && salon.tray.pos) {
-      const tp = salon.tray.pos.clone(); tp.y += 2.25;
+      const tp = _hp.copy(salon.tray.pos); tp.y += 2.25;
       const p = project(tp);
       if (p) {
         pill(p.x, p.y, `☕ Köy Çay Ocağı (${G.caySayisi} ikram)`, 'rgba(140,58,20,.9)', '#fff', 20, '#ffd166');
@@ -81,7 +81,7 @@ export function createUI(G, camera, salon, hooks) {
 
     const items = [];
     for (const u of G.users.values()) {
-      const hp = u.ch.userData.head.getWorldPosition(new THREE.Vector3()); hp.y += 0.44;
+      const hp = u.ch.userData.head.getWorldPosition(_hp); hp.y += 0.44;
       const d = camera.position.distanceTo(hp);
       const p = project(hp);
       if (!p || p.x < -80 || p.x > W + 80 || p.y < 0 || p.y > H) continue;
@@ -135,6 +135,7 @@ export function createUI(G, camera, salon, hooks) {
       }
     }
     G.fx.length = 0;
+    if (parts.length > 320) parts.splice(0, parts.length - 320);
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i];
       if (p.delay && p.delay > 0) { p.delay -= dt; continue; }

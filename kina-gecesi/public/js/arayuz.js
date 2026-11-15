@@ -51,7 +51,7 @@ export function createUI(G, camera, salon, hooks) {
     ctx.fillStyle = '#2a1a2e'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, X + w / 2, y - h / 2 - tl + 1);
     ctx.globalAlpha = 1;
   }
-  const tmp = new THREE.Vector3();
+  const tmp = new THREE.Vector3(), _hp = new THREE.Vector3();
   function project(v) {
     tmp.copy(v).project(camera);
     if (tmp.z > 1 || tmp.z < -1) return null;
@@ -64,7 +64,7 @@ export function createUI(G, camera, salon, hooks) {
 
     // Ortadaki Gelin etiketi
     if (G.bride && G.bride.ch) {
-      const bhp = G.bride.ch.userData.head.getWorldPosition(new THREE.Vector3());
+      const bhp = G.bride.ch.userData.head.getWorldPosition(_hp);
       bhp.y += 0.54;
       const bp = project(bhp);
       if (bp) {
@@ -80,7 +80,7 @@ export function createUI(G, camera, salon, hooks) {
 
     const items = [];
     for (const u of G.users.values()) {
-      const hp = u.ch.userData.head.getWorldPosition(new THREE.Vector3()); hp.y += 0.44;
+      const hp = u.ch.userData.head.getWorldPosition(_hp); hp.y += 0.44;
       const d = camera.position.distanceTo(hp);
       const p = project(hp);
       if (!p || p.x < -80 || p.x > W + 80 || p.y < 0 || p.y > H) continue;
@@ -145,6 +145,7 @@ export function createUI(G, camera, salon, hooks) {
       }
     }
     G.fx.length = 0;
+    if (parts.length > 320) parts.splice(0, parts.length - 320);
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i];
       if (p.delay && p.delay > 0) { p.delay -= dt; continue; }

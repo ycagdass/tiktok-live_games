@@ -15,13 +15,14 @@ import { createDemo } from './demo.js';
 const W = 1080, H = 1920;
 const qs = new URLSearchParams(location.search);
 const LOW = qs.get('kalite') === 'dusuk';
+const HIGH_DOF = qs.get('kalite') === 'yuksek';
 
 // ---------- render ----------
 const canvas = document.getElementById('cv');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.shadowMap.autoUpdate = false; // gölge iki karede bir güncellenir (performans)
+renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.shadowMap.autoUpdate = false; // gölge dört karede bir güncellenir (performans)
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 const scene = new THREE.Scene();
@@ -38,8 +39,8 @@ const director = createDirector(camera);
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bokeh = new BokehPass(scene, camera, { focus: 6, aperture: 0.0009, maxblur: 0.006 });
-if (!LOW) composer.addPass(bokeh);
+const bokeh = HIGH_DOF ? new BokehPass(scene, camera, { focus: 6, aperture: 0.0009, maxblur: 0.006 }) : null;
+if (bokeh) composer.addPass(bokeh);
 const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.42, 0.55, 0.8);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
@@ -98,12 +99,12 @@ function loop() {
   if (A.tick) A.tick(G.level, dt);
   G.update(dt, A.beatAt());
   director.update(dt);
-  bokeh.uniforms.focus.value = director.dist;
+  if (bokeh) bokeh.uniforms.focus.value = director.dist;
   // ışık kıpırtısı
   const t = G.time;
   salon.lamps.forEach((l, i) => { l.intensity = 5 + Math.sin(t * 11 + i * 3) * 0.35 + Math.sin(t * 6.3 + i) * 0.25; });
   salon.bulbs.forEach((b, i) => { b.material.emissiveIntensity = G.level >= 3 ? 3 + 4 * ((Math.sin(t * 8 - i * 0.6) + 1) / 2) : 5; });
-  if (frames % 2 === 0) renderer.shadowMap.needsUpdate = true;
+  if (frames % 4 === 0) renderer.shadowMap.needsUpdate = true;
   composer.render();
   UI.draw(dt);
   UI.tick(dt);

@@ -6,7 +6,7 @@
 //   • Küfür ve nefret içeren yorumlar filtre.json ile ekrana basılmadan filtrelenir
 //   • Ekranda yarışma yerine "Bu Gece En Çok Hediye Atanlar" teşekkür listesi yer alır
 import * as THREE from 'three';
-import { karakterYap, TUR_ETIKET, secilenTur, yorumdanTur } from '/karakterler/index.js';
+import { karakterYap, karakterTemizle, TUR_ETIKET, secilenTur, yorumdanTur } from '/karakterler/index.js';
 import { hediyeEsle } from '/ortak/hediye-esle.js';
 import { yorumTemizMi } from '/ortak/filtre.js';
 
@@ -54,7 +54,7 @@ export function createGame(scene, salon) {
     const old = u.ch;
     const tur = (u.ozelTur && u.tur) ? u.tur : (u.tur = secilenTur(G.karakterModu, u.seed));
     u.ch = karakterYap(tur, u.renk || null, u.nick, { seed: u.seed, cinsiyet: u.cinsiyet });
-    if (old) { u.ch.position.copy(old.position); u.ch.rotation.y = old.rotation.y; scene.remove(old); u.ch.userData.state.poz = old.userData.state.poz; u.ch.userData.state.pozT = old.userData.state.pozT; }
+    if (old) { u.ch.position.copy(old.position); u.ch.rotation.y = old.rotation.y; scene.remove(old); karakterTemizle(old); u.ch.userData.state.poz = old.userData.state.poz; u.ch.userData.state.pozT = old.userData.state.pozT; }
     else { u.ch.position.copy(salon.door).add(V((Math.random() - 0.5) * 2, 0, 0)); u.ch.rotation.y = Math.PI; u.ch.userData.state.poz = 'ayak'; u.ch.userData.state.pozT = 1; }
     scene.add(u.ch);
   }
@@ -251,7 +251,8 @@ export function createGame(scene, salon) {
     if (/^(halaya kat[ıi]l(ı|i)?yorum|halaya kat[ıi]l|halay|halaya)$/.test(t)) {
       G.emit('chipHit', 'halay');
       if (u.role === 'halay') return;
-      if (u.role === 'yogur' || ROLE_NAMES[u.role]) return;
+      if ((u.role === 'yogur' || ROLE_NAMES[u.role]) && !u.autoRole) return;
+      u.autoRole = false;
       toHalay(u);
       G.emit('announce', `💃 ${u.nick} halaya katıldı!`);
     } else if (/^(otur|masaya d[öo]n|masaya)$/.test(t)) {
@@ -402,7 +403,7 @@ export function createGame(scene, salon) {
         if (standing && st.dans && !sp.follow) st.kol = 'halay';
         u.arrived = true;
       }
-      if (u.leaving && dist < 0.3) { scene.remove(ch); G.leaving.splice(G.leaving.indexOf(u), 1); }
+      if (u.leaving && dist < 0.3) { scene.remove(ch); karakterTemizle(ch); G.leaving.splice(G.leaving.indexOf(u), 1); }
     }
 
     const b = G.beat, per = G.level >= 3 ? 4 : G.level === 2 ? 6 : 8;

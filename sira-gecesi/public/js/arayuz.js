@@ -48,7 +48,7 @@ export function createUI(G, camera, salon, hooks) {
     ctx.fillStyle = '#2a1a2e'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, X + w / 2, y - h / 2 - tl + 1);
     ctx.globalAlpha = 1;
   }
-  const tmp = new THREE.Vector3();
+  const tmp = new THREE.Vector3(), _hp = new THREE.Vector3();
   function project(v) { // dünya → sahne pikseli
     tmp.copy(v).project(camera);
     if (tmp.z > 1 || tmp.z < -1) return null;
@@ -61,7 +61,7 @@ export function createUI(G, camera, salon, hooks) {
     ctx.clearRect(0, 0, W, H);
     const items = [];
     for (const u of G.users.values()) {
-      const hp = u.ch.userData.head.getWorldPosition(new THREE.Vector3()); hp.y += 0.42;
+      const hp = u.ch.userData.head.getWorldPosition(_hp); hp.y += 0.42;
       const d = camera.position.distanceTo(hp);
       const p = project(hp);
       if (!p || p.x < -80 || p.x > W + 80 || p.y < 0 || p.y > H) continue;
@@ -94,6 +94,7 @@ export function createUI(G, camera, salon, hooks) {
       else if (f.type === 'isot') for (let i = 0; i < 60; i++) parts.push({ k: 'w', w: salon.tray.pos.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.8, 1.6 + Math.random() * 0.8, (Math.random() - 0.5) * 0.8)), vy: -1.2 - Math.random(), life: 2.2, col: Math.random() < 0.5 ? '#b3200f' : '#e2461d' });
     }
     G.fx.length = 0;
+    if (parts.length > 320) parts.splice(0, parts.length - 320);
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i]; p.life -= dt;
       if (p.life <= 0) { parts.splice(i, 1); continue; }
