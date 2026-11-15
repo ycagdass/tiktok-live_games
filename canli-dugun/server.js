@@ -200,7 +200,7 @@ async function tryConnect(gen) {
   } catch (err) {
     if (gen !== live.gen || conn !== live.conn) return;
     const msg = String((err && err.message) || err);
-    const offline = (lib.UserOfflineError && err instanceof lib.UserOfflineError) || /offline|not live|isn't online|not online/i.test(msg);
+    const offline = (lib.UserOfflineError && err instanceof lib.UserOfflineError) || /offline|not live|isn't online|not online|Failed to retrieve Room ID|Failed to retrieve live status/i.test(msg);
     const rate = /rate.?limit|too many/i.test(msg);
     if (rate) {
       // Euler ücretsiz katman saatlik bağlantı sınırı: sık denemek sadece süreyi uzatır
@@ -208,7 +208,7 @@ async function tryConnect(gen) {
       retry(gen, 10 * 60000);
       return;
     }
-    if (offline) setStatus('waiting', `@${live.username} şu an yayında değil. Yayın açılınca otomatik bağlanacak (30 sn'de bir kontrol).`);
+    if (offline) setStatus('waiting', `@${live.username} şu an yayında değil (veya yayın henüz başlamadı). Yayın açılınca otomatik bağlanacak (30 sn'de bir kontrol).`);
     else setStatus('error', `Bağlanamadı: ${msg.slice(0, 160)} — 45 sn sonra tekrar denenecek.`);
     retry(gen, offline ? 30000 : 45000);
   }

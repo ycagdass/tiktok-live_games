@@ -1,144 +1,127 @@
-# Kurulum: TikTok canlı yayın halay oyunları
+# Kurulum ve Canlı Yayın Rehberi (OBS & TikTok LIVE Studio)
 
-Bu klasörde iki oyun var:
+Bu projede **6 adet** geleneksel eğlence oyunu bulunur. Hepsi aynı kurulum mantığıyla çalışır:
 
-| Klasör | Oyun | Adres |
-|---|---|---|
-| `canli-dugun` | Düğün oyunu (2B): halay halkası, gelin, damat, takı | http://localhost:3000 |
-| `sira-gecesi` | Sıra gecesi (3B, hamam böcekleri): orkestra, çiğ köfte, halay, masalar | http://localhost:3100 |
-
-İkisi de aynı şekilde kurulur. Aşağıdaki adımlar Windows içindir.
-
----
-
-## 1. Kodları indir
-
-GitHub sayfasında yeşil **Code** düğmesine bas, **Download ZIP** ile indir. ZIP dosyasına sağ tıkla, **Tümünü ayıkla** de.
-
-## 2. Node.js kur
-
-https://nodejs.org adresinden **LTS** sürümünü indir ve kur (hep "İleri" demen yeterli).
-
-Kontrol etmek için: Başlat menüsüne `cmd` yaz, açılan pencereye `node -v` yaz. `v20` veya üstü bir sürüm görüyorsan tamam.
-
-## 3. Euler Stream'den ücretsiz API anahtarı al
-
-Oyun, TikTok yayınındaki yorum, beğeni ve hediyeleri **tiktok-live-connector** kütüphanesiyle okur. Bu kütüphanenin bağlanabilmesi için bir imza anahtarı gerekiyor.
-
-1. https://www.eulerstream.com adresine git, ücretsiz üye ol.
-2. Panelden yeni bir API anahtarı oluştur.
-3. `euler_` ile başlayan anahtarı kopyala.
-
-## 4. `ayarlar.json` dosyasını doldur
-
-Kullanacağın oyunun klasöründeki `ayarlar.json` dosyasını aç.
-
-> **VS Code gerekmez.** Dosyaya sağ tıkla → **Birlikte aç** → **Not Defteri**. Windows'ta Not Defteri zaten yüklü. (İstersen VS Code ile de açabilirsin, renkli gösterir ama şart değil.)
-
-Dosya şöyle görünür:
-
-```json
-{
-  "username": "",
-  "signApiKey": ""
-}
-```
-
-Kullanıcı adını ve anahtarı **tırnakların arasına** yaz:
-
-```json
-{
-  "username": "kullanici_adin",
-  "signApiKey": "euler_xxxxxxxxxxxx"
-}
-```
-
-- **username**: TikTok kullanıcı adın, başında `@` olmadan.
-- **signApiKey**: 3. adımda aldığın Euler anahtarı.
-
-> ⚠️ **Tırnakları silme.** Yazdığın şey iki tırnağın `"..."` arasında kalmalı. Satır sonundaki virgülü de silme.
->
-> ✅ Doğru: `"username": "kullanici_adin",`
-> ❌ Yanlış: `"username": kullanici_adin,` (tırnaklar silinmiş, oyun ayarları okuyamaz)
-
-Kaydet (**Ctrl + S**) ve kapat. **Bu dosyayı kimseyle paylaşma**, anahtar sana özel.
-
-> Kullanıcı adını istersen dosyaya yazmadan, oyunun kontrol panelinden de girebilirsin.
-
-## 5. Hediyeleri kendine göre ayarla (`hediyeler.json`)
-
-Hangi hediyenin ne yapacağı bu dosyada yazıyor. Bunu da Not Defteri ile açabilirsin. Değiştirirken yine tırnakları, virgülleri ve süslü parantezleri silme. Örnek (sıra gecesi):
-
-```json
-{ "eylem": "cigkofte", "etiket": "Çiğ Köfteci Ol", "jeton": 1, "ikon": "🌹", "ad": ["Rose", "Gül"], "id": ["5655"] }
-```
-
-- **eylem**: hediye gelince ne olacağı. Bunu değiştirme, dosyanın başında olası eylemler yazıyor.
-- **etiket**: ekranda görünen ad.
-- **jeton**: hediyenin jeton değeri. Hediye bu değerle eşleşir.
-- **ad / id**: hediyenin TikTok'taki adı ve numarası (biliyorsan). Boş bırakırsan sadece jetona göre eşleşir.
-
-TikTok LIVE Studio'da **İzleyici Dilekleri** kısmında hangi hediyeleri seçtiysen, buraya da aynı hediyeleri ve jeton değerlerini yaz. Böylece izleyici ekranın üstünde gördüğü hediyeyi atınca oyun tepki verir.
-
-Dosyayı kaydedip oyun sayfasını yenilemen yeterli.
-
-## 6. Müziklerini ekle
-
-Oyun klasöründeki `müzik` klasörüne kendi müziklerini at (mp3, m4a, wav, ogg…). Hepsi sırayla, tekrar tekrar çalar. Oyun şarkının ritmini ölçüp halayın hızını ona göre ayarlar.
-
-## 7. Başlat
-
-Oyun klasöründeki **`BASLAT.bat`** dosyasına çift tıkla.
-
-- İlk açılışta gerekli paketleri kendisi kurar (1-2 dakika).
-- Siyah bir **SUNUCU** penceresi açılır. **Yayın boyunca bunu kapatma.**
-- Kenarlıksız, dikey bir **sahne penceresi** açılır. Yayına verilecek pencere bu.
-- Normal tarayıcıda **kontrol paneli** açılır: bağlantı durumu, demo düğmeleri, hediye kaydı. Bunu yayına verme.
-
-Yayın açmadan denemek için kontrol panelindeki demo düğmelerini kullanabilirsin. Hesap bağlanınca demo kendiliğinden kapanır.
-
-## 8. TikTok LIVE Studio'da yayına ver (Windows Pencere Yakalama)
-
-1. **TikTok LIVE Studio**'yu aç ve yayın yönünü **Dikey (9:16 - 1080x1920)** olarak seç.
-2. `BASLAT.bat` çalıştığında iki tarayıcı penceresi açılır:
-   - **Kenarlıksız dikey pencere (`?clean` yayın modu)**: Sadece sahneyi gösterir, sağ panel gizlidir.
-   - **Kontrol paneli penceresi (`http://localhost:PORT/`)**: Bağlantı durumu, demo düğmeleri ve hediye kaydı buradadır (bunu yayına verme).
-3. TikTok LIVE Studio'da sol alttan **Kaynak ekle (Add Source) → Pencere yakalama (Window Capture)** seç.
-4. Açılan listeden `[chrome.exe]: Sıra Gecesi` veya `[msedge.exe]: Canlı Düğün` (kenarlıksız 9:16 sahne penceresi) kaynağını seç.
-5. **İmleci yakala (Capture Cursor)** seçeneğini kapat, **Uyumluluk modu (Compatibility Mode)** gerekirse (siyah ekran olursa) işaretle ve pencereyi tuvale tam sığdır.
-6. Sahne penceresini **simge durumuna küçültme (minimize etme)**; Windows küçültülen pencerelerin çizimini durdurduğu için yayında donar. Pencereyi arka planda açık bırakabilirsin.
-7. Yayını başlat. Oyun yayına kendisi bağlanır. Yayın kapalıyken bekler, yayın açılınca otomatik bağlanır.
-
-### Teknik Notlar (Aşama 1 Tespit ve Düzeltmeler)
-- **Hediye eylemleri (`isot`)**: `sira-gecesi/hediyeler.json` ve `oyun.js` içinde `isot` eylemi kodda tanımlı olmasına rağmen varsayılan kural listesinde eksikti; `jeton: 20` ile kurallara eklendi, böylece 8 hediye eyleminin tamamı (`cigkofte`, `halaybasi`, `cay`, `saz`, `solist`, `darbuka`, `isot`, `cosku`) hem demo panelinden hem hediye eşleşmesinden tetiklenebiliyor.
-- **Three.js yolu**: `sira-gecesi/server.js`, `node_modules/three` klasörünü `/three/` altında statik olarak sunar ve `index.html` / `karakter.html` içindeki `importmap` (`/three/build/three.module.js` ve `/three/examples/jsm/`) doğrudan yerel paketten yüklenir.
-- **Ses ve Otomatik Çalma**: `müzik/` klasörü boşken Web Audio API ile prosedürel Hicaz davul-zurna sentezlenir; `BASLAT.bat` içindeki `--autoplay-policy=no-user-gesture-required` bayrağı ve 64-bit Windows Chrome/Edge yedek yolları sayesinde `?clean` sahne penceresinde ses tıklama gerektirmeden başlar.
+| Klasör | Oyun | Port / Kontrol Paneli | Yayına Verilecek Sahne (`?clean`) |
+|---|---|---|---|
+| `canli-dugun/` | Canlı Düğün (2B Canvas) | `http://localhost:3000` | `http://localhost:3000/?clean` |
+| `sira-gecesi/` | Sıra Gecesi (3B Three.js) | `http://localhost:3100` | `http://localhost:3100/?clean` |
+| `sira-gecesi-v2/` | Sıra Gecesi v2 (3B + Teşekkür + Filtre) | `http://localhost:3200` | `http://localhost:3200/?clean` |
+| `kina-gecesi/` | Kına Gecesi (3B Gelin & Kına) | `http://localhost:3300` | `http://localhost:3300/?clean` |
+| `koy-dugunu/` | Köy Düğünü (3B Meydan & Çay Ocağı) | `http://localhost:3400` | `http://localhost:3400/?clean` |
+| `horon/` | Karadeniz Horonu (3B Halka & Kemençe) | `http://localhost:3500` | `http://localhost:3500/?clean` |
 
 ---
 
-## Oyunda izleyici ne yapabilir?
+## 1. Node.js Kurulumu
 
-**Sıra gecesi**
+https://nodejs.org adresinden **LTS** sürümünü (`v20` veya üstü) indirip kurun.
 
-| İzleyici | Oyunda |
+---
+
+## 2. Euler Stream Ücretsiz API Anahtarı (`euler_...`) ve `ayarlar.json`
+
+Oyun, TikTok yayınındaki yorum, beğeni ve hediyeleri **tiktok-live-connector** kütüphanesiyle okur.
+
+1. https://www.eulerstream.com adresine ücretsiz üye olun ve panelden **API Key** oluşturun (`euler_...` ile başlar).
+2. Oynayacağınız oyunun klasöründeki (ör. `sira-gecesi-v2/ayarlar.json` veya `sira-gecesi/ayarlar.json`) dosyayı Not Defteri ile açın:
+
+```json
+{
+  "username": "tiktok_kullanici_adin",
+  "signApiKey": "euler_buraya_kendi_anahtarini_yapistir",
+  "karakter": "bocek",
+  "izleyiciSecer": true
+}
+```
+
+- **`username`**: TikTok kullanıcı adınız (`@` işareti olmadan). İsterseniz boş bırakıp oyun açılınca sağ üstteki kutudan da yazabilirsiniz.
+- **`signApiKey`**: Euler Stream anahtarınız. *(Not: Tek bir oyunun `ayarlar.json` dosyasına `signApiKey` yazmanız yeterlidir; diğer 5 oyun anahtarı otomatik olarak oradan okur!)*
+
+---
+
+## 3. Oyunu Başlatma
+
+Ana klasördeki **`BASLAT-HEPSI.bat`** dosyasına (veya ilgili oyunun klasöründeki **`BASLAT.bat`** dosyasına) çift tıklayın.
+
+Açıldığında **3 pencere** gelir:
+1. **Siyah `SUNUCU` penceresi**: Arka planda TikTok bağlantısını yapar, yayın boyunca **kapatmayın**.
+2. **Dikey (`9:16`) Kenarlıksız Sahne Penceresi (`?clean`)**: Yayına verilecek asıl oyun ekranıdır.
+3. **Kontrol Paneli Penceresi (`http://localhost:PORT`)**: Sağ üstten kullanıcı adı bağlama, demo test düğmeleri ve gelen hediyeleri görme ekranıdır.
+
+---
+
+## 4. "TikTok Yayında İlla Kamera İstiyor!" Sorununun Kesin Çözümü (OBS Sanal Kamera)
+
+TikTok'ta yayın açarken (gerek **TikTok LIVE Studio**'da kamera doğrulaması/sahnesi istendiğinde, gerek **TikTok Web / Mobil Kamera** yayınında) TikTok sizden zorunlu olarak bir **Kamera (Webcam)** kaynağı ister.
+
+Fiziksel kameranızı açmadan **doğrudan oyun ekranını TikTok'a kamera gibi göstermenin** en kesin yolu **OBS Sanal Kamera (OBS Virtual Camera)** kullanmaktır:
+
+### Adım A — OBS Studio'yu Dikey (9:16) Yapın ve Oyunu Ekleyin
+1. **OBS Studio**'yu açın (yüklü değilse https://obsproject.com adresinden ücretsiz kurun).
+2. Sağ alttan **Ayarlar (Settings) → Video** sekmesine girin:
+   - **Temel (Tuval) Çözünürlüğü (Base Resolution):** `1080x1920` (elle yazabilirsiniz)
+   - **Çıkış (Boyutlandırılmış) Çözünürlüğü (Output Resolution):** `1080x1920`
+   - **Uygula (Apply) → Tamam (OK)** deyin. Artık OBS ekranınız dikey telefon boyutundadır.
+3. OBS'de alt ortadaki **Kaynaklar (Sources)** kutusunda **`+`** butonuna basın → **Tarayıcı (Browser)** seçin ve adını `TikTok Oyun` koyup Tamam deyin.
+4. Açılan özellikler penceresinde şu ayarları yapın:
+   - **URL:** `http://localhost:3200/?clean` *(Hangi oyunu açtıysanız onun portunu yazın: `3000`, `3100`, `3200`, `3300`, `3400` veya `3500`. Sonundaki `/?clean` sağdaki kontrol panelini gizler, sadece sahneyi gösterir).*
+   - **Genişlik (Width):** `1080`
+   - **Yükseklik (Height):** `1920`
+   - **Ses kontrolünü OBS üzerinden yap (Control audio via OBS):** İşaretleyin (böylece oyun müziği doğrudan OBS ses mikserine düşer).
+   - **Tamam**'a basın. Oyun sahnesi OBS'e tam ekran dikey olarak gelecektir!
+
+### Adım B — OBS Sanal Kamerayı Başlatın
+1. OBS Studio'nun sağ alt köşesindeki **Kontroller (Controls)** bölümünden **"Sanal Kamerayı Başlat" (Start Virtual Camera)** butonuna tıklayın.
+2. Artık bilgisayarınızda **`OBS Virtual Camera`** adında gerçek bir webcam varmış gibi çalışır ve içinde oyun görünür!
+
+### Adım C — TikTok'ta Kamera Olarak "OBS Virtual Camera" Seçin
+- **Durum 1: TikTok LIVE Studio "Kamera" İstiyorsa:**
+  1. TikTok LIVE Studio'da **Kamera (Camera)** ekleme penceresi açıldığında cihaz listesinden **`OBS Virtual Camera`**'yı seçin.
+  2. Çözünürlüğü `1080x1920` seçip sahneye tam ekran yayın. TikTok kameranızın açık olduğunu görür ve kamera zorunluluğu tamamen çözülür!
+- **Durum 2: TikTok LIVE Studio "Oyun + Gerçek Yüz Kamerası" Doğrulaması İstiyorsa:**
+  1. Ana kaynak olarak **Pencere Yakalama (Window Capture)** veya **Kamera (`OBS Virtual Camera`)** ile oyunu tam ekran koyun.
+  2. Eğer TikTok algoritma kontrolü için fiziksel kameranızı da sahnede görmek isterse, **Kaynak Ekle → Kamera** diyerek kendi webcam'inizi ekleyin, boyutunu küçültüp ekranın bir köşesine koyun (veya katman sırasını oyun kaynağının altına/arkasına çekin).
+- **Durum 3: OBS'den Doğrudan Yayın (Stream Key / Yayın Anahtarınız Varsa):**
+  - TikTok'tan Stream Key alabiliyorsanız TikTok LIVE Studio'ya hiç gerek kalmadan OBS'de **Ayarlar → Yayın (Stream)** kısmına TikTok Sunucu URL ve Yayın Anahtarınızı girip doğrudan **Yayını Başlat** diyebilirsiniz.
+
+### Adım D — Oyun Sesinin Yayına Gitmesi
+- Oyunu başlattığınızda ses gelmiyorsa, açık olan kontrol paneli penceresinde (`http://localhost:3200`) sağ üstteki **`🔇 Sesi Aç`** butonuna bir kez tıklayın.
+- TikTok LIVE Studio kullanıyorsanız sol alttaki **Ses Mikseri (Audio Mixer)** kısmında **Masaüstü Sesi (Desktop Audio)** açık olduğundan emin olun; oyunun müziği ve efektleri masaüstü sesinden yayına gider.
+
+---
+
+## 5. TikTok LIVE Studio'da Doğrudan Pencere Yakalama (OBS Kullanmadan)
+
+OBS kullanmadan doğrudan TikTok LIVE Studio ile yakalamak isterseniz:
+1. **TikTok LIVE Studio**'yu açın ve yayın yönünü **Dikey (9:16 - 1080x1920)** olarak seçin.
+2. `BASLAT.bat` çalıştığında açılan **kenarlıksız dikey pencereyi (`?clean`)** kapatmayın ve **simge durumuna küçültmeyin (minimize etmeyin)** (Windows küçültülen pencerelerin çizimini durdurduğu için yayında donar; arka planda açık kalabilir).
+3. TikTok LIVE Studio'da **Kaynak ekle (Add Source) → Pencere yakalama (Window Capture)** seçin ve `[chrome.exe]: Sıra Gecesi` / `[msedge.exe]` sahne penceresini seçin.
+4. Siyah ekran olursa **Uyumluluk modu (Compatibility Mode)** kutucuğunu işaretleyin.
+5. Kamera sorarsa yukarıdaki **4. Adımdaki `OBS Virtual Camera`** yöntemini kullanın.
+
+---
+
+## 6. Sık Karşılaşılan Sorunlar ve Çözümleri
+
+| Belirti / Mesaj | Neden Olur ve Çözümü |
 |---|---|
-| Yayına girer | Masaya oturur (ilk gelenler sazcı, solist, darbukacı, çiğ köfteci olur) |
-| "Halaya katıl" yazar | Halaya girer |
-| "kadın" / "erkek" yazar | Karakteri değişir |
-| "oyna" yazar | Zıplar |
-| Beğeni atar | Halay hızlanır |
-| Hediye atar | `hediyeler.json`'daki eylem olur (çiğ köfteci, solist, herkese çay…) |
+| **`Failed to retrieve Room ID from all sources`** veya **`YAYIN BEKLENİYOR: @kullanici şu an yayında değil`** | **Bu bir kod arızası değildir!** Yazdığınız TikTok hesabı **o anda henüz canlı yayında değilse** TikTok henüz bir "Oda Numarası (Room ID)" oluşturmamıştır. Sunucu artık bu durumda hata vermek yerine otomatik olarak **sarı `YAYIN BEKLENİYOR` moduna** geçer ve **30 saniyede bir** kontrol eder. Siz TikTok'ta **"Yayına Geç (Go Live)"** tuşuna bastığınız anda 30 saniye içinde kendiliğinden yeşil **`CANLI: @kullanici`** durumuna geçer! |
+| **Yayını açtım ama hala bağlanmıyor** | 1) Kullanıcı adınızı `@` olmadan doğru yazdığınızdan emin olun. 2) `ayarlar.json` içine `euler_` ile başlayan `signApiKey` anahtarınızı girdiğinizden emin olun (ücretsiz Euler Stream hesabı şarttır). |
+| **TikTok yayında illa kamera istiyor** | Yukarıdaki **4. Bölümde** anlatıldığı gibi **OBS Studio → Sanal Kamerayı Başlat (Start Virtual Camera)** özelliğini açıp TikTok'ta kamera olarak **`OBS Virtual Camera`** seçin. |
+| **Oyun müziği çalmıyor** | Tarayıcılar otomatik sesi engelleyebilir; oyun penceresine bir kez tıklayın veya sağ üstteki **`Sesi Aç`** düğmesine basın. Kendi şarkılarınızı oyunun içindeki `müzik/` klasörüne `.mp3` olarak atabilirsiniz. |
+| **`rate limit` hatası** | Ücretsiz Euler anahtarının saatlik istek sınırı dolmuştur. Sürekli Bağlan/Kes yapmayın; program 45 saniye bekleyip kendisi bağlanır. |
 
-Yayın boşken beş sabit halaycı döner, gerçek izleyiciler geldikçe yer açarlar. Salon dolarsa en uzun süredir sessiz duran kişi yerini yeni gelene bırakır.
+---
 
-## Sorun çıkarsa
+## 7. Oyunda İzleyici Komutları ve Etkileşim
 
-| Belirti | Çözüm |
+| İzleyici Eylemi | Oyunda Ne Olur? |
 |---|---|
-| "Node.js bulunamadı" | 2. adım. Kurduktan sonra bilgisayarı yeniden başlat. |
-| "... requires a Business plan" | Kodda `enableExtendedGiftInfo` kapalı olmalı (bu pakette kapalı gelir). |
-| "rate limit" hatası | Ücretsiz Euler anahtarının saatlik sınırı doldu. Biraz bekle; program kendisi tekrar dener. |
-| "şu an yayında değil" | Yayın açık değil. Yayını açınca 30 saniye içinde kendisi bağlanır. |
-| SUNUCU penceresinde "ayarlar" / JSON hatası | `ayarlar.json`'da bir tırnak veya virgül silinmiş. 4. adımdaki örneğe göre düzelt. |
-| Sayfa açılmıyor | SUNUCU penceresi kapanmış olabilir. `BASLAT.bat`'a tekrar çift tıkla. |
-| Müzik çalmıyor | `müzik` klasöründe dosya var mı bak. Sahne penceresine bir kez tıkla. |
+| **Yayına girer / Yorum yazar** | Adıyla karakter olarak sahnede doğar, adı karakterin üstünde görünür |
+| **`!kedi`, `!köpek`, `!insan`, `!böcek` yazar** | İzleyicinin karakteri anında seçtiği türe dönüşür |
+| **`halay` / `halaya katıl` yazar** | Karakter halay halkasına / sırasına girer |
+| **`oyna` / `zıpla` yazar** | Karakter zıplar ve kutlama animasyonu yapar |
+| **`kadın` / `erkek` yazar** | Karakterin kıyafet/görünüm stili değişir |
+| **Beğeni (Like) gönderir** | Halay ve müzik coşkusu hızlanır, kalpler uçar |
+| **Hediye gönderir** | `hediyeler.json` içindeki jeton karşılığına göre özel olay tetiklenir (Çiğ köfteci, Halay başı, Herkese çay, Sazcı, Solist, Darbukacı, Acı isot, Havai fişek coşkusu, Kına yakma vb.) |
