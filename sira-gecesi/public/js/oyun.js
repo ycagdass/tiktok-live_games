@@ -2,7 +2,7 @@
 // Olaylar (demo ve gerçek TikTok aynı format):
 //   member → masaya oturur | chat → balon (+ "halaya katıl" komutu) | like → enerji | gift → kurallar (hediyeler.json)
 import * as THREE from 'three';
-import { makeRoach, outfitFor } from './hamambocegi.js';
+import { karakterYap, TUR_ETIKET, secilenTur, yorumdanTur } from '/karakterler/index.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -38,6 +38,7 @@ export function createGame(scene, salon) {
     seatOwner: new Array(salon.seats.length).fill(null), baskose: null,
     scores: new Map(), top: [], rules: DEFAULT_RULES,
     likes: 0, diamonds: 0, viewers: 0, headA: 0,
+    karakterModu: 'bocek', izleyiciSecer: true,
     standUntil: -1, isotUntil: -1, fx: [], _ls: {},
   };
   G.on = (e, f) => (G._ls[e] = G._ls[e] || []).push(f);
@@ -47,11 +48,23 @@ export function createGame(scene, salon) {
   // ---------- kullanıcı / karakter ----------
   function build(u) {
     const old = u.ch;
-    u.ch = makeRoach({ seed: u.seed, ...outfitFor(u.seed, u.cinsiyet) });
+    const tur = (u.ozelTur && u.tur) ? u.tur : (u.tur = secilenTur(G.karakterModu, u.seed));
+    u.ch = karakterYap(tur, u.renk || null, u.nick, { seed: u.seed, cinsiyet: u.cinsiyet });
     if (old) { u.ch.position.copy(old.position); u.ch.rotation.y = old.rotation.y; scene.remove(old); u.ch.userData.state.poz = old.userData.state.poz; u.ch.userData.state.pozT = old.userData.state.pozT; }
     else { u.ch.position.copy(salon.door).add(V((Math.random() - 0.5) * 2, 0, 0)); u.ch.rotation.y = Math.PI; u.ch.userData.state.poz = 'ayak'; u.ch.userData.state.pozT = 1; }
     scene.add(u.ch);
   }
+  G.setKarakterAyar = (mod, izleyiciSecer) => {
+    const prevMod = G.karakterModu;
+    if (mod) G.karakterModu = mod;
+    if (typeof izleyiciSecer === 'boolean') G.izleyiciSecer = izleyiciSecer;
+    if (mod && mod !== prevMod) {
+      for (const u of G.users.values()) {
+        if (!u.ozelTur) build(u);
+      }
+    }
+    G.emit('karakterAyar', { karakter: G.karakterModu, izleyiciSecer: G.izleyiciSecer });
+  };
   function ensure(user) {
     let u = G.users.get(user.id);
     if (u) { u.lastActive = G.time; if (user.nick) u.nick = user.nick; return u; }
@@ -212,6 +225,19 @@ export function createGame(scene, salon) {
   };
 
   function command(u, text) {
+    const kt = yorumdanTur(text);
+    if (kt && G.izleyiciSecer !== false) {
+      G.emit('chipHit', 'tur');
+      u.tur = kt.tur;
+      u.ozelTur = true;
+      if (kt.renk) u.renk = kt.renk;
+      build(u);
+      u.ch.userData.state.jumpT = G.time;
+      G.fx.push({ type: 'puf', at: u, t: G.time });
+      const et = TUR_ETIKET[kt.tur] || TUR_ETIKET.bocek;
+      G.emit('announce', `${et.ikon} ${u.nick} ${et.ad.toLocaleLowerCase('tr')} oldu!`);
+      return;
+    }
     const t = text.trim().toLocaleLowerCase('tr').replace(/[!.?\s]+$/, '');
     if (/^(halaya kat[ıi]l(ı|i)?yorum|halaya kat[ıi]l|halay|halaya)$/.test(t)) {
       G.emit('chipHit', 'halay');
@@ -274,6 +300,10 @@ export function createGame(scene, salon) {
 
   function action(r, u, gf, cnt, total) {
     G.emit('ruleHit', r.eylem);
+    if (u.ch && u.ch.userData && u.ch.userData.state) {
+      u.ch.userData.state.kutlaT = G.time;
+      u.ch.userData.state.hediyeT = G.time;
+    }
     switch (r.eylem) {
       case 'cigkofte': toKnead(u); u.autoRole = false; G.emit('announce', `🌶️ ${u.nick} çiğ köfte yoğurmaya oturdu!`); G.emit('focus', 'cigkofte'); break;
       case 'halaybasi': toHalay(u, true); G.emit('announce', `🧣 ${u.nick} halaybaşı oldu, mendili kaptı!`); G.emit('focus', 'halay'); break;

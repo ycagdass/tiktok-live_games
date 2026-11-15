@@ -9,7 +9,7 @@
     'Davulcu abi coştur bizi 🥁', 'Zurnacıya selam', 'Halaya ben de geldim', 'Halaybaşı mendili salla!', 'Hayırlı olsun 🎉',
     "Antep'ten selamlar", "Diyarbakır'dan selam", "Erzurum'dan geldik", "Almanya'dan izliyoruz", 'Sağdıç nerede?',
     'Takı töreni ne zaman?', 'Bu düğün sabaha kadar sürer', 'Oyy oyy oyy', 'Hadi hadi hadi 🔥', 'Kına gecesi de olacak mı?',
-    'kız', 'erkek', 'oyna', 'Ellerinize sağlık', 'Çok güzel düğün', 'Gelin damat el ele 💍', 'Mutluluklar dilerim',
+    'kız', 'erkek', 'oyna', '!kedi', '!köpek', '!insan', '!böcek', 'Ellerinize sağlık', 'Çok güzel düğün', 'Gelin damat el ele 💍', 'Mutluluklar dilerim',
     'Halay olmadan düğün olmaz', 'Omuz omuza!', 'Tempo artsın ❤️', 'Yine geldim 🙋', 'Ben de takı takacağım', 'Ağlatma beni zurnacı',
   ];
   const D = CD.demo = { on: true, pool: [], t: 0, next: 0.3, vt: 0 };

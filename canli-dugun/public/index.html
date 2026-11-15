@@ -46,7 +46,7 @@
       </div>
       <div id="announce"></div>
       <div id="banner"></div>
-      <div id="hint"><span>kız / erkek yazınca kıyafet değişir · oyna yazınca zıplar</span><b>💬 Yorum yaz, <em>halaya katıl!</em></b></div>
+      <div id="hint"><span>!kedi / !köpek / !insan / !böcek · kız / erkek · oyna</span><b>💬 Yorum yaz, <em>halaya katıl!</em></b></div>
     </div>
   </section>
 
@@ -58,6 +58,20 @@
         <button id="liveBtn" class="go">Bağlan</button>
       </form>
       <p class="sub" id="liveMsg">Bağlı değil. Yayın açacak hesabın kullanıcı adını yaz.</p>
+    </div>
+    <div class="panel">
+      <div class="panel-h">🎭 Karakter seçimi</div>
+      <div class="btns" id="charModeBtns">
+        <button data-char="bocek" class="gold">🪳 Böcek</button>
+        <button data-char="kedi">🐱 Kedi</button>
+        <button data-char="kopek">🐶 Köpek</button>
+        <button data-char="insan">🧑 İnsan</button>
+        <button data-char="karisik">🎲 Karışık</button>
+      </div>
+      <label class="sw" style="margin-top:6px;display:flex;align-items:center;gap:6px;font-size:12px;color:#d6cbe0">
+        <input type="checkbox" id="viewerCharOpt" checked>
+        <span>İzleyici yorumla tür seçebilsin (!kedi, !köpek, !insan, !böcek)</span>
+      </label>
     </div>
     <div class="panel">
       <div class="panel-h">⚡ Sahne enerjisi <b id="energyPct">0%</b></div>
@@ -85,7 +99,7 @@
       </div>
       <form id="chatForm" autocomplete="off">
         <input id="chatName" placeholder="İsim" value="Bilal" maxlength="16">
-        <input id="chatText" placeholder="Yorum yaz… (kız / erkek / oyna)" maxlength="80">
+        <input id="chatText" placeholder="Yorum yaz… (!kedi / !köpek / !insan / !böcek / kız / erkek)" maxlength="80">
         <button>Gönder</button>
       </form>
     </div>
@@ -104,6 +118,7 @@
 </main>
 
 <script src="js/util.js"></script>
+<script src="/karakterler/karakter2d.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/game.js"></script>
 <script src="js/render.js"></script>

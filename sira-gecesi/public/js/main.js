@@ -57,6 +57,7 @@ const live = { status: { state: 'idle' } };
 const post = (url, body) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }).catch(() => {});
 live.connect = (u) => post('/api/connect', { username: u });
 live.disconnect = () => post('/api/disconnect');
+live.saveConfig = (cfg) => post('/api/config', cfg);
 
 const UI = createUI(G, camera, salon, {
   onQuality: setQuality, demo, live,
@@ -64,8 +65,9 @@ const UI = createUI(G, camera, salon, {
   onJump: (i) => director.jump(TOUR[i][0]),
 });
 
-// hediye kuralları (hediyeler.json)
+// hediye kuralları (hediyeler.json) ve karakter ayarları (ayarlar.json)
 fetch('/api/rules').then((r) => r.json()).then((j) => { if (Array.isArray(j.kurallar) && j.kurallar.length) G.rules = j.kurallar; UI.renderRuleButtons(); }).catch(() => UI.renderRuleButtons());
+fetch('/api/config').then((r) => r.json()).then((j) => { if (j) G.setKarakterAyar(j.karakter, j.izleyiciSecer); }).catch(() => {});
 UI.renderRuleButtons();
 
 // sunucudan gerçek olaylar (SSE)
@@ -76,6 +78,7 @@ if (location.protocol !== 'file:' && window.EventSource) {
   es.onmessage = (e) => {
     let ev; try { ev = JSON.parse(e.data); } catch { return; }
     if (ev.type === 'status') { live.status = ev.status; UI.setLive(ev.status); demo.paused = false; return; }
+    if (ev.type === 'config') { G.setKarakterAyar(ev.karakter, ev.izleyiciSecer); return; }
     G.handle(ev);
   };
 }

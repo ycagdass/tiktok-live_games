@@ -160,6 +160,30 @@
     gm.on('giftlog', addGiftLog);
     gm.on('giftlog', learnImage);
 
+    // Karakter seçimi
+    const syncCharUI = () => {
+      document.querySelectorAll('[data-char]').forEach((b) => {
+        b.classList.toggle('gold', b.dataset.char === gm.karakterModu);
+      });
+      if ($('viewerCharOpt')) $('viewerCharOpt').checked = gm.izleyiciSecer !== false;
+    };
+    document.querySelectorAll('[data-char]').forEach((b) => {
+      b.onclick = () => {
+        const m = b.dataset.char;
+        gm.setKarakterAyar(m, gm.izleyiciSecer);
+        if (CD.live && CD.live.saveConfig) CD.live.saveConfig({ karakter: m, izleyiciSecer: gm.izleyiciSecer });
+      };
+    });
+    if ($('viewerCharOpt')) {
+      $('viewerCharOpt').onchange = (e) => {
+        const val = e.target.checked;
+        gm.setKarakterAyar(gm.karakterModu, val);
+        if (CD.live && CD.live.saveConfig) CD.live.saveConfig({ karakter: gm.karakterModu, izleyiciSecer: val });
+      };
+    }
+    gm.on('karakterAyar', syncCharUI);
+    syncCharUI();
+
     renderBoard();
     fit();
   };

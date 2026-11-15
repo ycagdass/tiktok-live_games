@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
+const KARAKTER_DIR = [path.resolve(__dirname, '..', 'karakterler'), path.join(__dirname, 'karakterler')].find((d) => fs.existsSync(d)) || path.resolve(__dirname, '..', 'karakterler');
 const ROOT = path.join(__dirname, 'public');
 const CONFIG_FILE = path.join(__dirname, 'ayarlar.json');
 const MIME = {
@@ -40,7 +41,7 @@ function serveFile(req, res, file) {
 }
 
 // ---------- ayarlar ----------
-const config = { username: '', signApiKey: '' };
+const config = { username: '', signApiKey: '', karakter: 'bocek', izleyiciSecer: true };
 try { Object.assign(config, JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))); } catch {}
 if (process.env.EULER_API_KEY) config.signApiKey = process.env.EULER_API_KEY;
 if (process.argv[2]) config.username = process.argv[2].replace(/^@/, '');
@@ -244,11 +245,22 @@ http.createServer(async (req, res) => {
   if (p === '/api/events') {
     res.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
     res.write(`data: ${JSON.stringify({ type: 'status', status })}\n\n`);
+    res.write(`data: ${JSON.stringify({ type: 'config', karakter: config.karakter || 'bocek', izleyiciSecer: config.izleyiciSecer !== false })}\n\n`);
     clients.add(res);
     req.on('close', () => clients.delete(res));
     return;
   }
-  if (p === '/api/status') return json(res, { status, savedUsername: config.username });
+  if (p === '/api/status') return json(res, { status, savedUsername: config.username, karakter: config.karakter || 'bocek', izleyiciSecer: config.izleyiciSecer !== false });
+  if (p === '/api/config') {
+    if (req.method === 'POST') {
+      const body = await readJson(req);
+      if (body.karakter) config.karakter = String(body.karakter);
+      if (typeof body.izleyiciSecer === 'boolean') config.izleyiciSecer = body.izleyiciSecer;
+      saveConfig();
+      broadcast({ type: 'config', karakter: config.karakter, izleyiciSecer: config.izleyiciSecer !== false });
+    }
+    return json(res, { karakter: config.karakter || 'bocek', izleyiciSecer: config.izleyiciSecer !== false });
+  }
   if (p === '/api/connect' && req.method === 'POST') {
     const body = await readJson(req);
     connect(body.username).catch((e) => setStatus('error', 'Bağlanamadı: ' + e.message));
@@ -287,6 +299,11 @@ http.createServer(async (req, res) => {
     const mf = path.normalize(path.join(MUSIC_DIR, p.slice(7)));
     if (!mf.startsWith(MUSIC_DIR) || !AUDIO_RE.test(mf)) { res.writeHead(403); return res.end(); }
     return serveFile(req, res, mf);
+  }
+  if (p.startsWith('/karakterler/')) {
+    const kf = path.normalize(path.join(KARAKTER_DIR, p.slice(13)));
+    if (!kf.startsWith(KARAKTER_DIR)) { res.writeHead(403); return res.end(); }
+    return serveFile(req, res, kf);
   }
 
   if (p === '/') p = '/index.html';

@@ -290,7 +290,7 @@ export function makeRoach(o = {}) {
     kol: 'dinlen',              // dinlen | halay | yogur | saz | kulak | darbuka | yuru | mendil
     hands: [null, null],        // dünya koordinatında el hedefleri (halay / yoğurma)
     walk: 0, dans: 0, lean: 0,  // yürüme / halay adımı / öne eğilme şiddetleri
-    talkT: -99, jumpT: -99,
+    talkT: -99, jumpT: -99, kutlaT: -99, hediyeT: -99,
   };
   const tmpW = V(0, 0, 0);
 
@@ -308,6 +308,7 @@ export function makeRoach(o = {}) {
     }
     if (st.walk > 0) hip -= 0.02 * Math.abs(Math.sin(t * 9 + ph)) * st.walk;
     const jt = t - st.jumpT; if (jt < 0.6) hip += Math.sin((jt / 0.6) * Math.PI) * 0.25;
+    const kt = t - (st.kutlaT || -99); if (kt < 1.8) hip += Math.abs(Math.sin(kt * 9)) * 0.12;
     up.position.y = hip;
     up.rotation.x = st.lean;
     up.rotation.y = level >= 2 && st.dans > 0 ? Math.sin(beat * Math.PI * 4) * 0.05 * (level - 1) : 0; // omuz titretme
@@ -335,12 +336,16 @@ export function makeRoach(o = {}) {
     }
 
     // kollar
+    const celebrating = (t - (st.kutlaT || -99)) < 1.8 || st.kol === 'kutla' || st.kol === 'hediye';
     for (let i = 0; i < 2; i++) {
       const s = i ? 1 : -1, A = arms[i];
       const sh = V(s * 0.22, 0.85, 0);
       let tg, pole = V(s * 0.6, -0.4, -0.7);
       const hw = st.hands[i];
-      if (hw && (st.kol === 'halay' || st.kol === 'yogur' || (st.kol === 'mendil' && s > 0))) {
+      if (celebrating) {
+        tg = V(s * 0.34, 1.35 + 0.1 * Math.sin(t * 11 + i * 2), 0.2);
+        pole = V(s, 0, -0.3);
+      } else if (hw && (st.kol === 'halay' || st.kol === 'yogur' || (st.kol === 'mendil' && s > 0))) {
         tg = up.worldToLocal(tmpW.copy(hw)).clone();
       } else if (st.kol === 'saz') {
         tg = s < 0 ? V(-0.32, 0.92 + Math.sin(t * 1.3) * 0.02, 0.36) : V(0.12 + Math.sin(beat * Math.PI * 2) * 0.03, 0.55, 0.36);
@@ -364,7 +369,7 @@ export function makeRoach(o = {}) {
     }
     props.saz.visible = st.kol === 'saz';
     props.darbuka.visible = st.kol === 'darbuka';
-    props.mendil.visible = st.kol === 'mendil';
+    props.mendil.visible = st.kol === 'mendil' || st.kol === 'hediye';
     if (props.mendil.visible) {
       const pos = props.mendil.geometry.attributes.position, base = props.mendil.userData.base;
       for (let k = 0; k < pos.count; k++) { const x = base[k * 3], y = base[k * 3 + 1]; pos.setZ(k, Math.sin(t * 9 + x * 18 + y * 6) * 0.03 * (x + 0.11) * 4); }

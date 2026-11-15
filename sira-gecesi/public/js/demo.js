@@ -1,7 +1,7 @@
 // Demo: yayın açmadan sahte izleyicilerle test (gerçek TikTok olaylarıyla aynı format).
 const F = ['Ayşe', 'Fatma', 'Zeynep', 'Elif', 'Emine', 'Hatice', 'Merve', 'Büşra', 'Esra', 'Derya', 'Ebru', 'Tuba', 'Şirin', 'Gizem', 'Sevgi', 'Hülya', 'Gül', 'Selin', 'Dilan', 'Rojda', 'Berfin', 'Hazal', 'Kübra', 'Songül', 'Nur', 'Melike', 'Sibel', 'Yasemin', 'Cansu', 'Leyla'];
 const M = ['Mehmet', 'Ahmet', 'Mustafa', 'Ali', 'Hüseyin', 'Hasan', 'İbrahim', 'Murat', 'Emre', 'Yusuf', 'Ömer', 'Burak', 'Serkan', 'Oğuz', 'Ramazan', 'Zafer', 'Furkan', 'Kemal', 'Cem', 'Barış', 'Volkan', 'Serdar', 'Halil', 'Recep', 'Şahin', 'Berat', 'Eren', 'Baran', 'Cihan', 'Sinan'];
-const CH = ['Urfa\'dan selamlar 🌶️', 'Çiğ köfte nerede kaldı?', 'Ustam eline sağlık', 'Sazcı abi bir türkü', 'Aman aman', 'Bu gece sabaha kadar', 'Çay gelsin ☕', 'Gözleri baygın hepsinin 😂', 'Halay başlasın!', 'Isot az olmuş', 'Sıra gecesi başka', 'Kemençe yok mu', 'Selam Antep\'ten', 'Diyarbakır burada', 'Oyy oyy', 'Ellerinize sağlık', 'kadın', 'kadın', 'erkek', 'oyna', 'Bir de Urfalıyam ezelden', 'Mutluluklar'];
+const CH = ['Urfa\'dan selamlar 🌶️', 'Çiğ köfte nerede kaldı?', 'Ustam eline sağlık', 'Sazcı abi bir türkü', 'Aman aman', 'Bu gece sabaha kadar', 'Çay gelsin ☕', 'Gözleri baygın hepsinin 😂', 'Halay başlasın!', 'Isot az olmuş', 'Sıra gecesi başka', 'Kemençe yok mu', 'Selam Antep\'ten', 'Diyarbakır burada', 'Oyy oyy', 'Ellerinize sağlık', 'kadın', 'kadın', 'erkek', 'oyna', '!kedi', '!köpek', '!insan', '!böcek', 'Bir de Urfalıyam ezelden', 'Mutluluklar'];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const rand = (a, b) => a + Math.random() * (b - a);
 

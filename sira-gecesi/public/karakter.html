@@ -2,49 +2,135 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<title>Hamam Böceği — karakter testi</title>
-<style>html,body{margin:0;height:100%;background:#0b0705;overflow:hidden}canvas{display:block}</style>
+<title>Karakter Seçimi ve Animasyon Önizleme — Sıra Gecesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#0b0705;overflow:hidden;font-family:Nunito,system-ui,sans-serif;color:#fff}
+  canvas{display:block;position:absolute;left:0;top:0}
+  #ov{pointer-events:none;z-index:2}
+  #ui{position:absolute;left:16px;top:16px;z-index:5;background:rgba(18,10,26,.88);border:1px solid rgba(246,196,83,.45);border-radius:16px;padding:14px 16px;width:330px;backdrop-filter:blur(10px);box-shadow:0 12px 36px rgba(0,0,0,.55)}
+  #ui h1{margin:0 0 10px;font-size:18px;font-weight:900;color:#f6c453;display:flex;align-items:center;justify-content:space-between}
+  #ui h1 a{font-size:12px;color:#fff;background:rgba(255,255,255,.12);padding:4px 9px;border-radius:8px;text-decoration:none}
+  .grp{margin-bottom:10px}
+  .grp label{display:block;font-size:12px;font-weight:800;color:#d6cbe0;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+  .btns{display:flex;flex-wrap:wrap;gap:5px}
+  button{font-family:inherit;font-weight:800;font-size:12.5px;padding:6px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;transition:.15s}
+  button:hover{background:rgba(255,255,255,.18)}
+  button.active{background:#f6c453;color:#241200;border-color:#ffd97d;box-shadow:0 0 12px rgba(246,196,83,.45)}
+  .colors{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .sw-col{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.35);cursor:pointer;padding:0}
+  .sw-col.active{border-color:#fff;transform:scale(1.15);box-shadow:0 0 8px #f6c453}
+  .row{display:flex;gap:6px;align-items:center}
+  input[type="text"]{flex:1;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 9px;color:#fff;font-family:inherit;font-weight:700;font-size:13px}
+  input[type="color"]{width:32px;height:28px;border:none;background:none;cursor:pointer;padding:0}
+  .info{font-size:11.5px;color:#b8acc4;margin-top:6px;line-height:1.35}
+</style>
 <script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
 </head>
 <body>
+<canvas id="cv"></canvas>
+<canvas id="ov"></canvas>
+
+<aside id="ui">
+  <h1><span>🎭 Karakter Önizleme</span><a href="/">← Sahneye Dön</a></h1>
+
+  <div class="grp">
+    <label>Karakter Türü (karakterYap)</label>
+    <div class="btns" id="turBtns">
+      <button data-tur="bocek" class="active">🪳 Hamam Böceği</button>
+      <button data-tur="kedi">🐱 Kedi</button>
+      <button data-tur="kopek">🐶 Köpek</button>
+      <button data-tur="insan">🧑 İnsan</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <label>Kıyafet Rengi &amp; Cinsiyet</label>
+    <div class="colors" id="renkSwatches">
+      <button class="sw-col active" data-renk="#e85d75" style="background:#e85d75" title="Gül"></button>
+      <button class="sw-col" data-renk="#f2c531" style="background:#f2c531" title="Altın Sarı"></button>
+      <button class="sw-col" data-renk="#7cc3ec" style="background:#7cc3ec" title="Açık Mavi"></button>
+      <button class="sw-col" data-renk="#2a9d8f" style="background:#2a9d8f" title="Turkuaz"></button>
+      <button class="sw-col" data-renk="#9b5de5" style="background:#9b5de5" title="Mor"></button>
+      <button class="sw-col" data-renk="#d62828" style="background:#d62828" title="Kırmızı"></button>
+      <button class="sw-col" data-renk="#1b1b1f" style="background:#1b1b1f" title="Siyah Yelek"></button>
+      <input type="color" id="customColor" value="#e85d75" title="Özel Renk Seç">
+    </div>
+    <div class="btns" id="cinsBtns" style="margin-top:6px">
+      <button data-cins="erkek" class="active">👨 Erkek (Yelek/Forma)</button>
+      <button data-cins="kadin">👩 Kadın (Elbise)</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <label>Deneme Animasyonu</label>
+    <div class="btns" id="animBtns">
+      <button data-anim="halay" class="active">💃 Halay Çekme</button>
+      <button data-anim="mendil">🧣 Halaybaşı (Mendil)</button>
+      <button data-anim="yuru">🚶 Yürüme</button>
+      <button data-anim="otur">🪑 Oturma</button>
+      <button data-anim="saz">🪕 Saz Çalma</button>
+      <button data-anim="darbuka">🥁 Darbuka</button>
+      <button data-anim="kulak">🎤 Solist</button>
+      <button data-anim="yogur">🌶️ Çiğ Köfte</button>
+      <button data-anim="kutla">🎉 Kutlama</button>
+      <button data-anim="hediye">🎁 Hediye Hareketi</button>
+    </div>
+  </div>
+
+  <div class="grp">
+    <label>Karakter Adı</label>
+    <div class="row">
+      <input type="text" id="charName" value="Bilal Usta" maxlength="20">
+    </div>
+  </div>
+
+  <div class="info">
+    Arka divanda 4 tür (<b>böcek, kedi, köpek, insan</b>) bir arada oturur; önde seçtiğin karakter seçili animasyonu sergiler.
+  </div>
+</aside>
+
 <script type="module">
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { makeRoach } from './js/hamambocegi.js';
+import { karakterYap, TURLER, TUR_ETIKET } from '/karakterler/index.js';
 
-const W = innerWidth, H = innerHeight;
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const cv = document.getElementById('cv');
+const ov = document.getElementById('ov');
+const ctx = ov.getContext('2d');
+let W = innerWidth, H = innerHeight;
+ov.width = W; ov.height = H;
+
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(W, H);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#140a06');
-scene.fog = new THREE.Fog('#140a06', 6, 14);
+scene.fog = new THREE.Fog('#140a06', 7, 16);
 scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.35;
-const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 50);
-camera.position.set(0.15, 1.45, 7.4);
-camera.lookAt(0, 0.6, 0.2);
+const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 50);
+camera.position.set(0.0, 1.55, 6.8);
+camera.lookAt(0, 0.65, 0.4);
 
-// ---------- dokular ----------
 function tex(w, h, draw, rep) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   if (rep) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); }
   return t;
 }
-// kilim: kırmızı zemin, lacivert/altın baklava motifleri
 function kilim(pal = ['#8f1d22', '#1f2a4d', '#d9a441', '#efe2c4', '#5a1416'], scale = 1) {
   return tex(512, 512, (x, w, h) => {
     x.fillStyle = pal[0]; x.fillRect(0, 0, w, h);
@@ -54,86 +140,219 @@ function kilim(pal = ['#8f1d22', '#1f2a4d', '#d9a441', '#efe2c4', '#5a1416'], sc
       d(xx, y, s * 0.46, pal[1]); d(xx, y, s * 0.32, pal[2]); d(xx, y, s * 0.18, pal[0]); d(xx, y, s * 0.07, pal[3]);
     }
     x.fillStyle = pal[4]; for (let i = 0; i < w; i += 8) x.fillRect(i, 0, 3, 10), x.fillRect(i, h - 10, 3, 10);
-    for (let i = 0; i < 4000; i++) { x.fillStyle = `rgba(0,0,0,${Math.random() * 0.08})`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
   });
 }
 const plaster = tex(512, 512, (x, w, h) => {
   x.fillStyle = '#7c6446'; x.fillRect(0, 0, w, h);
-  for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(${Math.random() < 0.5 ? '60,40,20' : '255,240,210'},${Math.random() * 0.07})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 20, 0, 7); x.fill(); }
-  const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(40,20,5,.35)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 600; i++) { x.fillStyle = `rgba(${Math.random() < 0.5 ? '60,40,20' : '255,240,210'},${Math.random() * 0.07})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 20, 0, 7); x.fill(); }
 }, [3, 2]);
 
-// ---------- oda ----------
 const add = (geo, mat, pos, rot) => { const m = new THREE.Mesh(geo, mat); m.position.copy(pos); if (rot) m.rotation.set(...rot); m.castShadow = m.receiveShadow = true; scene.add(m); return m; };
 const v = (x, y, z) => new THREE.Vector3(x, y, z);
 add(new THREE.PlaneGeometry(14, 10), new THREE.MeshStandardMaterial({ color: '#4a2d1a', roughness: 0.9 }), v(0, -0.42, 0), [-Math.PI / 2, 0, 0]);
-add(new THREE.PlaneGeometry(3.6, 2.4), new THREE.MeshStandardMaterial({ map: kilim(undefined, 1.2), roughness: 0.95 }), v(0, -0.41, 0.6), [-Math.PI / 2, 0, 0]);
+add(new THREE.PlaneGeometry(4.4, 3.0), new THREE.MeshStandardMaterial({ map: kilim(undefined, 1.2), roughness: 0.95 }), v(0, -0.41, 0.9), [-Math.PI / 2, 0, 0]);
 add(new THREE.PlaneGeometry(14, 6), new THREE.MeshStandardMaterial({ map: plaster, roughness: 0.95 }), v(0, 2.5, -0.8));
-// duvarda çerçeveli resim
-add(new THREE.BoxGeometry(0.9, 0.62, 0.04), new THREE.MeshStandardMaterial({ color: '#5a3a1c', roughness: 0.5 }), v(0.9, 1.9, -0.77));
-add(new THREE.PlaneGeometry(0.78, 0.5), new THREE.MeshStandardMaterial({ map: tex(256, 160, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#8fa3a8'); g.addColorStop(1, '#4d5b40'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.fillStyle = '#2f3a2a'; x.beginPath(); x.moveTo(0, h * 0.7); x.lineTo(w * 0.3, h * 0.45); x.lineTo(w * 0.6, h * 0.62); x.lineTo(w, h * 0.4); x.lineTo(w, h); x.lineTo(0, h); x.fill(); }), roughness: 0.7 }), v(0.9, 1.9, -0.745));
 
-// minder + sırt yastıkları
-add(new RoundedBoxGeometry(5.4, 0.42, 0.95, 5, 0.1), new THREE.MeshStandardMaterial({ map: kilim(['#7a1a1e', '#233056', '#c99a3e', '#eadcbc', '#4a1214'], 0.8), roughness: 0.9 }), v(0, -0.21, 0.05));
-for (const sx of [-2.1, -1.05, 0, 1.05, 2.1]) add(new RoundedBoxGeometry(0.95, 0.6, 0.22, 5, 0.1), new THREE.MeshStandardMaterial({ map: kilim(['#9a5a1a', '#3b1a2a', '#e8c070', '#f3e6c8', '#5a2a10'], 0.7), roughness: 0.9 }), v(sx, 0.27, -0.52), [-0.18, 0, 0]);
+// Arka minder + sırt yastıkları
+add(new RoundedBoxGeometry(5.4, 0.42, 0.95, 5, 0.1), new THREE.MeshStandardMaterial({ map: kilim(['#7a1a1e', '#233056', '#c99a3e', '#eadcbc', '#4a1214'], 0.8), roughness: 0.9 }), v(0, -0.21, -0.1));
+for (const sx of [-2.1, -0.7, 0.7, 2.1]) add(new RoundedBoxGeometry(0.95, 0.6, 0.22, 5, 0.1), new THREE.MeshStandardMaterial({ map: kilim(['#9a5a1a', '#3b1a2a', '#e8c070', '#f3e6c8', '#5a2a10'], 0.7), roughness: 0.9 }), v(sx, 0.27, -0.62), [-0.18, 0, 0]);
 
-// bakır sini, çay bardakları, çiğ köfte
-const brass = new THREE.MeshStandardMaterial({ color: '#c08a3e', metalness: 0.9, roughness: 0.32 });
-add(new THREE.CylinderGeometry(0.55, 0.55, 0.035, 48), brass, v(0, -0.08, 1.15));
-for (const a of [0, 1.2, 2.4, 3.6, 4.8]) add(new THREE.CylinderGeometry(0.02, 0.02, 0.32, 8), new THREE.MeshStandardMaterial({ color: '#3a2412' }), v(Math.cos(a) * 0.4, -0.25, 1.15 + Math.sin(a) * 0.4));
-const glassMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.05, transmission: 1, thickness: 0.02, ior: 1.5, transparent: true });
-const teaMat = new THREE.MeshPhysicalMaterial({ color: '#a8320a', roughness: 0.1, transmission: 0.6, thickness: 0.05, emissive: '#3a0a00', emissiveIntensity: 0.3 });
-const tulip = [[0.0, 0], [0.032, 0.0], [0.03, 0.04], [0.024, 0.07], [0.03, 0.105], [0.036, 0.13]].map(([x, y]) => new THREE.Vector2(x, y));
-for (const [x, z] of [[-0.3, 1.05], [0.32, 1.0], [0.1, 1.38]]) {
-  add(new THREE.CylinderGeometry(0.05, 0.05, 0.008, 24), new THREE.MeshStandardMaterial({ color: '#e9e4da', roughness: 0.3 }), v(x, -0.058, z));
-  add(new THREE.LatheGeometry(tulip.map((p) => p.clone().multiplyScalar(1)), 24), teaMat, v(x, -0.055, z)).scale.set(0.9, 0.85, 0.9);
-  add(new THREE.LatheGeometry(tulip, 24), glassMat, v(x, -0.055, z));
+// Arka sırada 4 türün tamamı (böcek, kedi, köpek, insan) yan yana
+const bgChars = TURLER.map((tur, i) => {
+  const ch = karakterYap(tur, ['#7cc3ec', '#f2c531', '#2a9d8f', '#e85d75'][i], TUR_ETIKET[tur].ad, { seed: 10 + i * 7, cinsiyet: i % 2 ? 'kadin' : 'erkek' });
+  ch.position.set(-1.95 + i * 1.3, 0.0, -0.05);
+  ch.rotation.y = (1.5 - i) * 0.12;
+  const st = ch.userData.state;
+  st.poz = 'otur'; st.pozT = 0;
+  st.kol = ['saz', 'kulak', 'darbuka', 'dinlen'][i];
+  scene.add(ch);
+  return ch;
+});
+
+// Ön planda interaktif önizleme karakteri
+const state = {
+  tur: 'bocek',
+  renk: '#e85d75',
+  cinsiyet: 'erkek',
+  anim: 'halay',
+  ad: 'Bilal Usta',
+};
+
+let mainChar = null;
+function applyAnim(ch, anim, t = 0) {
+  const ud = ch.userData, st = ud.state;
+  st.hands = [null, null];
+  switch (anim) {
+    case 'halay':
+      ud.halayCek(false);
+      st.pozT = 1;
+      break;
+    case 'mendil':
+      ud.halayCek(true);
+      st.pozT = 1;
+      break;
+    case 'yuru':
+      ud.yuru(1);
+      st.pozT = 1;
+      break;
+    case 'otur':
+      ud.otur(false);
+      st.pozT = 0;
+      break;
+    case 'yogur':
+      ud.otur(true);
+      st.pozT = 0;
+      break;
+    case 'saz':
+    case 'darbuka':
+    case 'kulak':
+      ud.calgiCal(anim);
+      st.pozT = 0;
+      break;
+    case 'kutla':
+      ud.kutla(t);
+      st.pozT = 1;
+      break;
+    case 'hediye':
+      ud.hediyeHareketi(t);
+      st.pozT = 1;
+      break;
+  }
 }
-add(new THREE.CylinderGeometry(0.2, 0.16, 0.025, 32), new THREE.MeshStandardMaterial({ color: '#f1ece2', roughness: 0.35 }), v(-0.02, -0.05, 1.2));
-const kofte = new THREE.MeshStandardMaterial({ color: '#8f2a16', roughness: 0.75 });
-for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2; const k = add(new THREE.SphereGeometry(1, 16, 12), kofte, v(-0.02 + Math.cos(a) * 0.11, -0.025, 1.2 + Math.sin(a) * 0.11), [0, -a, 0]); k.scale.set(0.045, 0.022, 0.02); }
-for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2 + 0.3; const l = add(new THREE.SphereGeometry(1, 12, 8), new THREE.MeshStandardMaterial({ color: '#4f8f2f', roughness: 0.6 }), v(-0.02 + Math.cos(a) * 0.05, -0.03, 1.2 + Math.sin(a) * 0.05), [0, a, 0]); l.scale.set(0.06, 0.008, 0.03); }
 
-// ---------- karakterler ----------
-const roaches = [
-  makeRoach({ kiyafet: 'yelek', renk1: '#1b1b1f', kafa: 'sapka', kafaRenk: '#2b2b30', ayakkabi: 'spor', seed: 11 }),
-  makeRoach({ kiyafet: 'elbise', renk1: '#f2c531', renk2: '#fff3b0', desen: 'cicek', kafa: 'cicek', kafaRenk: '#d62839', kupe: true, ayakkabi: 'topuklu', seed: 4, body: '#8a3a19' }),
-  makeRoach({ kiyafet: 'forma', renk1: '#7cc3ec', renk2: '#ffffff', kafa: 'bant', kafaRenk: '#ffffff', ayakkabi: 'spor', seed: 3 }),
-  makeRoach({ kiyafet: 'elbise', desen: 'leopar', renk1: '#d9a35a', kafa: 'bere', kafaRenk: '#c1121f', kupe: true, seed: 8, body: '#743016' }),
-  makeRoach({ kiyafet: 'atlet', renk1: '#efe9dd', kafa: 'kasket', kafaRenk: '#4a3b2a', seed: 7, body: '#6a2c12', light: '#a65a2a' }),
-];
-roaches.forEach((r, i) => { r.position.set(-2.1 + i * 1.05, 0.0, 0.1); r.rotation.y = (2 - i) * 0.09; });
-roaches.forEach((r) => scene.add(r));
+function rebuildMain(t = 0) {
+  if (mainChar) scene.remove(mainChar);
+  mainChar = karakterYap(state.tur, state.renk, state.ad, {
+    seed: 42,
+    cinsiyet: state.cinsiyet,
+    kiyafet: state.cinsiyet === 'kadin' ? 'elbise' : 'forma',
+  });
+  mainChar.position.set(0.35, -0.41, 1.85);
+  mainChar.rotation.y = -0.15;
+  applyAnim(mainChar, state.anim, t);
+  scene.add(mainChar);
+}
+rebuildMain(0);
 
-// ---------- ışık ----------
-scene.add(new THREE.HemisphereLight('#7f8fc0', '#2a170c', 0.55));
-const key = new THREE.DirectionalLight('#ffc58a', 1.5);
-key.position.set(2.2, 3.4, 3.2); key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
-Object.assign(key.shadow.camera, { left: -4, right: 4, top: 3, bottom: -2, near: 0.5, far: 12 });
+// Işıklar
+scene.add(new THREE.HemisphereLight('#7f8fc0', '#2a170c', 0.6));
+const key = new THREE.DirectionalLight('#ffc58a', 1.55);
+key.position.set(2.2, 3.6, 3.5); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
 scene.add(key);
 const rim = new THREE.DirectionalLight('#8fb0ff', 0.9); rim.position.set(-2, 2.5, -2); scene.add(rim);
-// gaz lambası (sıcak, gölgeli pratik ışık)
-const lamp = new THREE.PointLight('#ff9a4a', 9, 6, 1.6); lamp.position.set(-1.45, 1.35, 0.35); lamp.castShadow = true; lamp.shadow.mapSize.set(1024, 1024); lamp.shadow.bias = -0.002; scene.add(lamp);
-add(new THREE.SphereGeometry(0.07, 16, 12), new THREE.MeshStandardMaterial({ color: '#ffd59a', emissive: '#ffb050', emissiveIntensity: 6 }), lamp.position.clone()).castShadow = false;
-add(new THREE.CylinderGeometry(0.09, 0.07, 0.18, 16, 1, true), new THREE.MeshPhysicalMaterial({ color: '#fff', transmission: 0.9, roughness: 0.1, transparent: true, side: THREE.DoubleSide }), lamp.position.clone()).castShadow = false;
+const lamp = new THREE.PointLight('#ff9a4a', 9, 7, 1.5); lamp.position.set(-1.45, 1.45, 0.5); scene.add(lamp);
 
-// ---------- efektler: bloom + odak ----------
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-composer.addPass(new BokehPass(scene, camera, { focus: 7.2, aperture: 0.0008, maxblur: 0.007 }));
-composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.38, 0.55, 0.82));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.35, 0.55, 0.82));
 composer.addPass(new OutputPass());
 
+// Arayüz etkileşimleri
 const clock = new THREE.Clock();
+document.querySelectorAll('#turBtns button').forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll('#turBtns button').forEach((x) => x.classList.remove('active'));
+    b.classList.add('active');
+    state.tur = b.dataset.tur;
+    rebuildMain(clock.getElapsedTime());
+  };
+});
+document.querySelectorAll('#renkSwatches .sw-col').forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll('#renkSwatches .sw-col').forEach((x) => x.classList.remove('active'));
+    b.classList.add('active');
+    state.renk = b.dataset.renk;
+    document.getElementById('customColor').value = state.renk;
+    rebuildMain(clock.getElapsedTime());
+  };
+});
+document.getElementById('customColor').oninput = (e) => {
+  document.querySelectorAll('#renkSwatches .sw-col').forEach((x) => x.classList.remove('active'));
+  state.renk = e.target.value;
+  rebuildMain(clock.getElapsedTime());
+};
+document.querySelectorAll('#cinsBtns button').forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll('#cinsBtns button').forEach((x) => x.classList.remove('active'));
+    b.classList.add('active');
+    state.cinsiyet = b.dataset.cins;
+    rebuildMain(clock.getElapsedTime());
+  };
+});
+document.querySelectorAll('#animBtns button').forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll('#animBtns button').forEach((x) => x.classList.remove('active'));
+    b.classList.add('active');
+    state.anim = b.dataset.anim;
+    applyAnim(mainChar, state.anim, clock.getElapsedTime());
+  };
+});
+document.getElementById('charName').oninput = (e) => {
+  state.ad = e.target.value.trim() || 'Misafir';
+  if (mainChar) mainChar.userData.ad = state.ad;
+};
+
+addEventListener('resize', () => {
+  W = innerWidth; H = innerHeight;
+  ov.width = W; ov.height = H;
+  camera.aspect = W / H; camera.updateProjectionMatrix();
+  renderer.setSize(W, H); composer.setSize(W, H);
+});
+
+const tmpV = new THREE.Vector3();
+function drawTag(ch, label, subLabel) {
+  const hp = ch.userData.head.getWorldPosition(tmpV);
+  hp.y += 0.36;
+  hp.project(camera);
+  if (hp.z > 1 || hp.z < -1) return;
+  const x = (hp.x * 0.5 + 0.5) * W, y = (-hp.y * 0.5 + 0.5) * H;
+  ctx.font = '800 15px Nunito, sans-serif';
+  const w = Math.max(ctx.measureText(label).width + 22, 70), h = 26;
+  ctx.fillStyle = 'rgba(18,10,26,.82)';
+  ctx.beginPath(); ctx.roundRect(x - w / 2, y - h, w, h, 13); ctx.fill();
+  ctx.strokeStyle = 'rgba(246,196,83,.65)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, x, y - h / 2 + 1);
+  if (subLabel) {
+    const sw = ctx.measureText(subLabel).width + 18;
+    ctx.fillStyle = 'rgba(246,196,83,.95)';
+    ctx.beginPath(); ctx.roundRect(x - sw / 2, y - h * 2 - 4, sw, h - 2, 12); ctx.fill();
+    ctx.fillStyle = '#241200';
+    ctx.fillText(subLabel, x, y - h * 1.5 - 3);
+  }
+}
+
 let frames = 0;
 function loop() {
   const t = clock.getElapsedTime();
-  roaches.forEach((r) => r.userData.update(t, t * 1.6));
-  lamp.intensity = 9 + Math.sin(t * 13) * 0.4 + Math.sin(t * 7.3) * 0.3;
-  camera.position.x = 0.15 + Math.sin(t * 0.25) * 0.3;
-  camera.lookAt(0, 0.6, 0.2);
+  const beat = t * 1.9;
+  bgChars.forEach((c) => c.userData.update(t, beat, 1));
+  if (mainChar) {
+    const st = mainChar.userData.state;
+    if (state.anim === 'kutla' && t - st.kutlaT > 1.6) st.kutlaT = t;
+    if (state.anim === 'hediye' && t - st.hediyeT > 1.6) { st.hediyeT = t; st.kutlaT = t; }
+    if (state.anim === 'yogur') {
+      for (let k = 0; k < 2; k++) {
+        const s = k ? 1 : -1, push = Math.max(0, Math.sin((beat * 2 + (k ? 0.5 : 0)) * Math.PI));
+        st.hands[k] = mainChar.localToWorld(new THREE.Vector3(s * 0.16, 0.25 - push * 0.08, 0.38));
+      }
+    }
+    mainChar.userData.update(t, beat, state.anim === 'halay' || state.anim === 'mendil' ? 2 : 1);
+  }
+  lamp.intensity = 9 + Math.sin(t * 11) * 0.35;
   composer.render();
+
+  ctx.clearRect(0, 0, W, H);
+  bgChars.forEach((c) => {
+    const et = TUR_ETIKET[c.userData.tur];
+    drawTag(c, `${et.ikon} ${et.kisa}`, null);
+  });
+  if (mainChar) {
+    const et = TUR_ETIKET[mainChar.userData.tur];
+    drawTag(mainChar, `${et.ikon} ${mainChar.userData.ad}`, `Tür: ${et.ad} · ${state.anim.toUpperCase()}`);
+  }
+
   if (++frames === 20) window.__ready = true;
   requestAnimationFrame(loop);
 }

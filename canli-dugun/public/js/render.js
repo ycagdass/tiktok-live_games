@@ -279,6 +279,7 @@
   }
 
   function drawHead(lk, an, o = {}) {
+    if (CD.karakterler) return CD.karakterler.cizKafa(ctx, lk, an, o);
     ctx.fillStyle = lk.skin; rr(ctx, -2.6, -41.5, 5.2, 4.5, 1); ctx.fill();
     circ(0, -51, 12.5);
     if (lk.gender === 'f') {
@@ -328,8 +329,9 @@
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ell(0, 0, 13 * shs, 3.8 * shs);
     ctx.save(); ctx.translate(an.sx, -an.lift + an.squat);
     const fb = an.bob - an.squat;
-    if (f && !lk.scarf && lk.long) { ctx.fillStyle = lk.hair; rr(ctx, -13.5, -60, 27, 32, 11); ctx.fill(); }
-    if (f && !lk.scarf && !lk.long) { ctx.fillStyle = lk.hair; circ(0, -64, 5.5); }
+    if (CD.karakterler) CD.karakterler.cizArkaDetay(ctx, lk, an, o.t || CD.game.time);
+    if ((!lk.tur || lk.tur === 'insan') && f && !lk.scarf && lk.long) { ctx.fillStyle = lk.hair; rr(ctx, -13.5, -60, 27, 32, 11); ctx.fill(); }
+    if ((!lk.tur || lk.tur === 'insan') && f && !lk.scarf && !lk.long) { ctx.fillStyle = lk.hair; circ(0, -64, 5.5); }
     const fl = { x: -4.5 - an.kickL * 2.5, y: fb - an.kickL * 5 }, fr = { x: 4.5 + an.kickR * 2.5, y: fb - an.kickR * 5 };
     ctx.lineCap = 'round';
     if (f) { ctx.strokeStyle = '#3b2a2e'; ctx.lineWidth = 3.4; line(-4, -8, fl.x, fl.y - 1); line(4, -8, fr.x, fr.y - 1); }
@@ -416,9 +418,12 @@
 
   // ---------- gelin & damat ----------
   function drawBride(gm, an, handR) {
-    const lk = BRIDE;
+    const r = gm.roles.gelin;
+    const tur = (r && r.tur) || (CD.karakterler ? CD.karakterler.secilenTur(gm.karakterModu, 101) : 'bocek');
+    const lk = (r && r.look) ? { ...BRIDE, ...r.look, gender: 'f', tur } : (CD.karakterler ? CD.karakterler.karakterYap(tur, '#ffffff', 'Gelin', { seed: 101, gender: 'f', look: BRIDE }) : BRIDE);
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(0, 0, 24, 5.5);
     ctx.save(); ctx.translate(an.sx, -an.lift);
+    if (CD.karakterler) CD.karakterler.cizArkaDetay(ctx, lk, an, gm.time);
     ctx.fillStyle = 'rgba(255,255,255,.5)';
     ctx.beginPath(); ctx.moveTo(-6, -64); ctx.bezierCurveTo(-24, -50, -26, -20, -21, -2); ctx.lineTo(-8, -2); ctx.bezierCurveTo(-12, -25, -8, -50, 7, -64); ctx.closePath(); ctx.fill();
     const gr = ctx.createLinearGradient(-22, 0, 22, 0);
@@ -439,8 +444,8 @@
       ctx.beginPath(); ctx.ellipse(CD.lerp(hl.x, -7.6, u), CD.lerp(hl.y, -35, u), 2.8, 1.1, 0.4, 0, TAU); ctx.stroke();
     }
     armTo(7.6, -35, handR, 1, '#f4efe9', lk.skin, an, {});
-    ctx.fillStyle = lk.hair; circ(0, -63.5, 6.2);
-    drawHead(lk, an, { lips: '#c2185b' });
+    if (!lk.tur || lk.tur === 'insan') { ctx.fillStyle = lk.hair; circ(0, -63.5, 6.2); }
+    drawHead(lk, an, { lips: '#c2185b', t: gm.time });
     ctx.fillStyle = '#f6d36b'; // taç
     ctx.beginPath(); ctx.moveTo(-8, -61.5);
     for (let i = 0; i <= 8; i++) ctx.lineTo(-8 + i * 2, i % 2 ? -66 : -62);
@@ -451,9 +456,12 @@
   }
 
   function drawGroom(gm, an, handL, handR) {
-    const lk = GROOM;
+    const r = gm.roles.damat;
+    const tur = (r && r.tur) || (CD.karakterler ? CD.karakterler.secilenTur(gm.karakterModu, 102) : 'bocek');
+    const lk = (r && r.look) ? { ...GROOM, ...r.look, gender: 'm', tur } : (CD.karakterler ? CD.karakterler.karakterYap(tur, '#1b1e2c', 'Damat', { seed: 102, gender: 'm', look: GROOM }) : GROOM);
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ell(0, 0, 14, 4.2);
     ctx.save(); ctx.translate(an.sx, -an.lift);
+    if (CD.karakterler) CD.karakterler.cizArkaDetay(ctx, lk, an, gm.time);
     const fb = an.bob;
     ctx.strokeStyle = '#15161f'; ctx.lineWidth = 6; ctx.lineCap = 'round';
     line(-4.5, -17, -4.6, fb - 1.5); line(4.5, -17, 4.6, fb - 1.5);
@@ -496,6 +504,9 @@
   // ---------- davulcu & zurnacı ----------
   function drawDavulcu(gm) {
     const p = G.DAVUL, s = G.MUS_S, b = gm.beat;
+    const r = gm.roles.davulcu;
+    const tur = (r && r.tur) || (CD.karakterler ? CD.karakterler.secilenTur(gm.karakterModu, 103) : 'bocek');
+    const lk = (r && r.look) ? { ...DAVUL, ...r.look, gender: 'm', tur } : (CD.karakterler ? CD.karakterler.karakterYap(tur, DAVUL.main, 'Davulcu', { seed: 103, gender: 'm', look: DAVUL }) : DAVUL);
     const bob = Math.sin((b % 1) * PI) * 1.2;
     const an = { lift: bob, bob, squat: 0, sx: 0, kickL: 0, kickR: 0, jump: 0, blink: (gm.time % 3.7) < 0.12 };
     const boost = gm.time < gm.davulBoost;
@@ -504,7 +515,8 @@
     const pl = (b * (boost ? 4 : 2)) % 1;
     const L = { x: -19 - pl * 2, y: -25 - Math.sin(pl * PI) * 7 };
     ctx.save(); ctx.translate(p.x, p.y); ctx.scale(s, s);
-    drawFigure(DAVUL, an, L, Rt, {
+    drawFigure(lk, an, L, Rt, {
+      t: gm.time,
       afterTorso: () => {
         ctx.strokeStyle = '#5a3a22'; ctx.lineWidth = 2; line(-7, -37, 12, -33);
         ctx.fillStyle = '#a8322b'; rr(ctx, -16, -34, 32, 22, 3); ctx.fill();
@@ -529,11 +541,14 @@
 
   function drawZurnaci(gm) {
     const p = G.ZURNA, s = G.MUS_S, b = gm.beat;
+    const tur = CD.karakterler ? CD.karakterler.secilenTur(gm.karakterModu, 104) : 'bocek';
+    const lk = CD.karakterler ? CD.karakterler.karakterYap(tur, ZURNA.main, 'Zurnacı', { seed: 104, gender: 'm', look: ZURNA }) : ZURNA;
     const bob = Math.sin((b % 1) * PI) * 1;
     const an = { lift: bob, bob, squat: 0, sx: 0, kickL: 0, kickR: 0, jump: 0, blink: false };
     const ang = Math.sin((b * PI) / 2) * 0.05 - (gm.level >= 3 ? 0.06 : 0);
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(ang); ctx.scale(s, s);
-    drawFigure(ZURNA, an, { x: -1, y: -33 }, { x: 3.5, y: -23 }, {
+    drawFigure(lk, an, { x: -1, y: -33 }, { x: 3.5, y: -23 }, {
+      t: gm.time,
       armsLate: true, puff: true,
       afterHead: () => {
         ctx.fillStyle = '#7a4a22';

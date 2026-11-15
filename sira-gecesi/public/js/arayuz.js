@@ -247,6 +247,31 @@ export function createUI(G, camera, salon, hooks) {
     document.querySelectorAll('[data-rule]').forEach((b) => { b.onclick = () => hooks.demo.ruleGift(+b.dataset.rule); });
   };
 
+  // ---------- karakter seçimi ----------
+  const syncCharUI = () => {
+    document.querySelectorAll('[data-char]').forEach((b) => {
+      b.classList.toggle('gold', b.dataset.char === G.karakterModu);
+    });
+    const chk = $('viewerCharOpt');
+    if (chk) chk.checked = G.izleyiciSecer !== false;
+  };
+  document.querySelectorAll('[data-char]').forEach((b) => {
+    b.onclick = () => {
+      const m = b.dataset.char;
+      G.setKarakterAyar(m, G.izleyiciSecer);
+      if (hooks.live && hooks.live.saveConfig) hooks.live.saveConfig({ karakter: m, izleyiciSecer: G.izleyiciSecer });
+    };
+  });
+  if ($('viewerCharOpt')) {
+    $('viewerCharOpt').onchange = (e) => {
+      const val = e.target.checked;
+      G.setKarakterAyar(G.karakterModu, val);
+      if (hooks.live && hooks.live.saveConfig) hooks.live.saveConfig({ karakter: G.karakterModu, izleyiciSecer: val });
+    };
+  }
+  G.on('karakterAyar', syncCharUI);
+  syncCharUI();
+
   // ---------- canlı bağlantı durumu ----------
   const PILL = { idle: ['DEMO', ''], connecting: ['BAĞLANIYOR…', 'wait'], waiting: ['YAYIN BEKLENİYOR', 'wait'], live: ['CANLI', 'live'], error: ['BAĞLANTI HATASI', 'err'] };
   UI.setLive = (st) => {

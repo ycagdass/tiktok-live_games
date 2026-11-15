@@ -71,6 +71,7 @@
         <div class="chip" data-chip="halay"><span class="ci">💃</span><span class="ct"><b>"Halaya katıl"</b><small>halaya gir</small></span></div>
         <div class="chip" data-chip="kadin"><span class="ci">👩</span><span class="ct"><b>"kadın"</b><small>kadın ol</small></span></div>
         <div class="chip" data-chip="erkek"><span class="ci">👨</span><span class="ct"><b>"erkek"</b><small>erkek ol</small></span></div>
+        <div class="chip" data-chip="tur"><span class="ci">🐱</span><span class="ct"><b>"!kedi · !köpek"</b><small>!insan · !böcek</small></span></div>
         <div class="chip" data-chip="oyna"><span class="ci">🤸</span><span class="ct"><b>"oyna"</b><small>zıpla</small></span></div>
         <div class="chip" data-chip="begen"><span class="ci">❤️</span><span class="ct"><b>Beğen</b><small>halay hızlansın</small></span></div>
         <div id="tempo" class="card">
@@ -103,6 +104,20 @@
       <p class="sub" id="liveMsg">Bağlı değil. Yayın açacak hesabın kullanıcı adını yaz.</p>
     </div>
     <div class="panel">
+      <div class="panel-h">🎭 Karakter seçimi <a href="karakter.html" target="_blank" style="font-size:12px;color:#f6c453;text-decoration:none">Önizleme ↗</a></div>
+      <div class="btns" id="charModeBtns">
+        <button data-char="bocek" class="gold">🪳 Böcek</button>
+        <button data-char="kedi">🐱 Kedi</button>
+        <button data-char="kopek">🐶 Köpek</button>
+        <button data-char="insan">🧑 İnsan</button>
+        <button data-char="karisik">🎲 Karışık</button>
+      </div>
+      <label class="sw" style="margin-top:6px;display:flex;align-items:center;gap:6px;font-size:12px;color:#d6cbe0">
+        <input type="checkbox" id="viewerCharOpt" checked>
+        <span>İzleyici yorumla tür seçebilsin (!kedi, !köpek, !insan, !böcek)</span>
+      </label>
+    </div>
+    <div class="panel">
       <div class="panel-h">⚡ Sahne enerjisi <b id="energyPct">0%</b></div>
       <div class="bar"><i id="energyBar"></i></div>
       <p class="sub" id="trackInfo"></p>
@@ -125,7 +140,7 @@
       <div class="btns" id="ruleBtns" style="margin-top:6px"></div>
       <form id="chatForm" autocomplete="off">
         <input id="chatName" placeholder="İsim" value="Bilal" maxlength="16">
-        <input id="chatText" placeholder="Yorum… (Halaya katıl / kadın / erkek / oyna)" maxlength="80">
+        <input id="chatText" placeholder="Yorum… (Halaya katıl / !kedi / !köpek / !insan / !böcek)" maxlength="80">
         <button>Gönder</button>
       </form>
     </div>

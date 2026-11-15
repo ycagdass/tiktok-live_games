@@ -43,7 +43,8 @@
     likes: 0, diamonds: 0, viewers: 0,
     taki: { gelin: [], damat: [] }, takiCount: { ceyrek: 0, yarim: 0, tam: 0, bilezik: 0, besi: 0 }, giftSeq: 0,
     sagdic: null, halaybasi: null,
-    roles: { gelin: null, damat: null, davulcu: null }, // hediyeyle alınan roller: { id, nick }
+    karakterModu: 'bocek', izleyiciSecer: true,
+    roles: { gelin: null, damat: null, davulcu: null }, // hediyeyle alınan roller: { id, nick, tur, look }
     davulBoost: -1,
     coins: [], sparks: [], hearts: [], confetti: [], money: [],
     _ls: {},
@@ -51,6 +52,22 @@
     on(ev, fn) { (this._ls[ev] = this._ls[ev] || []).push(fn); },
     emit(ev, d) { (this._ls[ev] || []).forEach((f) => f(d)); },
     addEnergy(v) { this.energy = Math.min(100, this.energy + v); },
+
+    setKarakterAyar(mod, izleyiciSecer) {
+      const prev = this.karakterModu;
+      if (mod) this.karakterModu = mod;
+      if (typeof izleyiciSecer === 'boolean') this.izleyiciSecer = izleyiciSecer;
+      if (mod && mod !== prev && CD.karakterler) {
+        for (const g of this.guests.values()) {
+          if (!g.ozelTur) {
+            g.tur = CD.karakterler.secilenTur(this.karakterModu, g.seed);
+            g.look = CD.karakterler.karakterYap(g.tur, g.renk || null, g.nick, { seed: g.seed, gender: g.gender });
+          }
+        }
+      }
+      this.emit('karakterAyar', { karakter: this.karakterModu, izleyiciSecer: this.izleyiciSecer });
+      this.emit('roles', this.roles);
+    },
 
     reset() {
       for (const g of [...this.line]) this.leave(g);
@@ -111,8 +128,10 @@
       if (this.line.length >= MAX) this.evict();
       const seed = CD.hash(String(user.id));
       const gender = user.gender || (seed % 2 ? 'f' : 'm');
+      const tur = CD.karakterler ? CD.karakterler.secilenTur(this.karakterModu, seed) : 'bocek';
+      const look = CD.karakterler ? CD.karakterler.karakterYap(tur, null, user.nick || 'misafir', { seed, gender }) : CD.makeLook(seed, gender);
       g = {
-        id: user.id, nick: user.nick || 'misafir', seed, gender, look: CD.makeLook(seed, gender),
+        id: user.id, nick: user.nick || 'misafir', seed, gender, tur, look,
         x: G.DOOR.x, y: G.DOOR.y, tx: G.DOOR.x, ty: G.DOOR.y, alpha: 0,
         lastActive: this.time, welcomeT: this.time, jumpT: -99, gifted: false, bubble: null,
         phase: ((seed >>> 8) % 100) / 100 * 0.08,
@@ -144,10 +163,36 @@
     },
 
     command(g, text) {
+      if (CD.karakterler && this.izleyiciSecer !== false) {
+        const kt = CD.karakterler.yorumdanTur(text);
+        if (kt) {
+          g.tur = kt.tur;
+          g.ozelTur = true;
+          if (kt.renk) g.renk = kt.renk;
+          g.look = CD.karakterler.karakterYap(g.tur, g.renk || null, g.nick, { seed: g.seed, gender: g.gender });
+          g.jumpT = this.time;
+          this.puff(g);
+          for (const rk in this.roles) {
+            if (this.roles[rk] && this.roles[rk].id === g.id) {
+              this.roles[rk].tur = g.tur;
+              this.roles[rk].look = g.look;
+            }
+          }
+          const et = CD.karakterler.TUR_ETIKET[g.tur] || { ikon: '🪳', ad: 'Böcek' };
+          this.emit('announce', `${et.ikon} ${g.nick} ${et.ad.toLocaleLowerCase('tr')} oldu!`);
+          return;
+        }
+      }
       const t = text.trim().toLocaleLowerCase('tr').replace(/[!.?\s]+$/, '');
-      if (t === 'kız' || t === 'kiz') { g.gender = 'f'; g.look = CD.makeLook(g.seed, 'f'); this.puff(g); }
-      else if (t === 'erkek') { g.gender = 'm'; g.look = CD.makeLook(g.seed, 'm'); this.puff(g); }
-      else if (/^(oyna|hop|zıpla|zipla)$/.test(t)) g.jumpT = this.time;
+      if (t === 'kız' || t === 'kiz') {
+        g.gender = 'f';
+        g.look = CD.karakterler ? CD.karakterler.karakterYap(g.tur, g.renk || null, g.nick, { seed: g.seed, gender: 'f' }) : CD.makeLook(g.seed, 'f');
+        this.puff(g);
+      } else if (t === 'erkek') {
+        g.gender = 'm';
+        g.look = CD.karakterler ? CD.karakterler.karakterYap(g.tur, g.renk || null, g.nick, { seed: g.seed, gender: 'm' }) : CD.makeLook(g.seed, 'm');
+        this.puff(g);
+      } else if (/^(oyna|hop|zıpla|zipla)$/.test(t)) g.jumpT = this.time;
     },
 
     puff(g) {
@@ -232,7 +277,7 @@
     },
 
     setRole(role, g) {
-      this.roles[role] = { id: g.id, nick: g.nick };
+      this.roles[role] = { id: g.id, nick: g.nick, tur: g.tur, look: g.look };
       this.updateRanks();
       this.emit('roles', this.roles);
     },
